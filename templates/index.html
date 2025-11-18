@@ -1,0 +1,461 @@
+{% extends "base.html" %}
+
+{% block content %}
+  <div class="table-container">
+    <table id="house-of-quality">
+      <!-- Column Headers -->
+      <thead>
+        <!-- 🔹 ROOF ROW (TRi–TRj correlations: + / 0 / -) – JS will fully populate -->
+        <tr class="roof-row">
+          <!-- JS (syncRoofRow) will rebuild all cells here based on number of characteristics -->
+        </tr>
+
+        <!-- 🔹 TARGET DIRECTION ROW (JS will replace with selects 0 / ↑ / ↓) -->
+        <tr class="characteristic-top-row">
+          <th></th>
+          <th></th>
+
+          <!-- Top labels for characteristics (placeholders, JS overwrites with selects) -->
+          <th class="characteristic-top-cell">Characteristic 1</th>
+          <th class="characteristic-top-cell">Characteristic 2</th>
+          <th class="characteristic-top-cell">Characteristic 3</th>
+
+          <th></th>
+          <th></th>
+
+          <!-- Empty placeholders for competitor columns (keep column count = 13) -->
+          <th></th>
+          <th></th>
+          <th></th>
+          <th></th>
+          <th></th>
+          <th></th>
+        </tr>
+
+        <!-- Group headers row -->
+        <tr>
+          <th rowspan="2">
+            <div class="requirement-controls-row">
+              <button id="add-requirement" class="icon-button" title="Add Requirement">
+                <span class="icon">+</span>
+              </button>
+              <span>Customer Requirements</span>
+              <button id="delete-requirement" class="icon-button" title="Delete Requirement">
+                <span class="icon">-</span>
+              </button>
+            </div>
+          </th>
+          <th rowspan="2">Importance</th>
+
+          <!-- Technical Characteristics group -->
+          <th colspan="3">
+            <div class="characteristic-controls-row">
+              <button id="add-characteristic" class="icon-button" title="Add Characteristic">
+                <span class="icon">+</span>
+              </button>
+              <span>Technical Characteristics</span>
+              <button id="delete-characteristic" class="icon-button" title="Delete Characteristic">
+                <span class="icon">-</span>
+              </button>
+            </div>
+          </th>
+
+          <!-- Per-characteristic Importance (your blue column) -->
+          <th rowspan="2" class="importance-header">
+            <div class="importance-controls-row">
+              <span>Importance of Service</span>
+            </div>
+          </th>
+
+          <!-- Toggle + Competitor ratings group -->
+          <th class="toggle-header" rowspan="2">
+            <button id="toggle-competitors" class="icon-button">-</button>
+          </th>
+          
+          <!-- Competitor columns group with proper colspan -->
+          <th colspan="6" class="competitor-header">Competitor Analysis</th>
+        </tr>
+
+        <!-- Bottom header row: characteristic names + competitor headers -->
+        <tr>
+          <!-- Editable Characteristic Names -->
+          <th><input type="text" class="characteristic-name" value="Characteristic 1"></th>
+          <th><input type="text" class="characteristic-name" value="Characteristic 2"></th>
+          <th><input type="text" class="characteristic-name" value="Characteristic 3"></th>
+
+          <!-- Competitor Ratings sub-head -->
+          <th class="competitor-column">Company 1</th>
+          <th class="competitor-column">Company 2</th>
+          <th class="competitor-column">Company 3</th>
+          <th class="competitor-column">Company 4</th>
+          <th class="competitor-column">Company 5</th>
+          
+          <!-- Highlight Competitive Advantage sub-header -->
+          <th class="competitive-result-header">Highlight Competitive Advantage</th>
+        </tr>
+      </thead>
+
+      <!-- Table Body -->
+      <tbody>
+        <!-- One default requirement row -->
+        <tr>
+          <td><input type="text" class="requirement-name" value="Requirement 1"></td>
+          <td><input type="number" class="importance" value="5"></td>
+
+          <!-- Relationship Matrix (3 tech characteristics initially) -->
+          <td>
+            <select class="relationship-select">
+              <option value="0">-</option>
+              <option value="9" data-icon="●">Strong (9)</option>
+              <option value="3" data-icon="○">Medium (3)</option>
+              <option value="1" data-icon="▲">Weak (1)</option>
+            </select>
+          </td>
+          <td>
+            <select class="relationship-select">
+              <option value="0">-</option>
+              <option value="9" data-icon="●">Strong (9)</option>
+              <option value="3" data-icon="○">Medium (3)</option>
+              <option value="1" data-icon="▲">Weak (1)</option>
+            </select>
+          </td>
+          <td>
+            <select class="relationship-select">
+              <option value="0">-</option>
+              <option value="9" data-icon="●">Strong (9)</option>
+              <option value="3" data-icon="○">Medium (3)</option>
+              <option value="1" data-icon="▲">Weak (1)</option>
+            </select>
+          </td>
+
+          <!-- Per-row manual importance for that characteristic (your blue cell) -->
+          <td class="importance-column">
+            <input type="number" class="characteristic-importance" value="0">
+          </td>
+
+          <!-- Toggle spacer -->
+          <td class="toggle-cell"></td>
+
+          <!-- Competitor Ratings -->
+          <td class="competitor-column"><input type="number" value="2" min="1" max="5"></td>
+          <td class="competitor-column"><input type="number" value="4" min="1" max="5"></td>
+          <td class="competitor-column"><input type="number" value="3" min="1" max="5"></td>
+          <td class="competitor-column"><input type="number" value="5" min="1" max="5"></td>
+          <td class="competitor-column"><input type="number" value="1" min="1" max="5"></td>
+          
+          <!-- Highlight Competitive Advantage column -->
+          <td class="competitive-result-column">
+            <div class="competitive-result-text">No analysis</div>
+          </td>
+        </tr>
+
+        <!-- Organization Difficulty -->
+        <tr id="organization-difficulty-row">
+          <td colspan="2">
+            <div class="difficulty-header">
+              Organization Difficulty
+              <div class="difficulty-subtext">(0 = Easy to accomplish | 10 = Extremely difficult)</div>
+            </div>
+          </td>
+          <td><input type="number" class="difficulty" value="1" min="0" max="10"></td>
+          <td><input type="number" class="difficulty" value="1" min="0" max="10"></td>
+          <td><input type="number" class="difficulty" value="1" min="0" max="10"></td>
+
+          <td class="importance-column"></td>
+          <td class="toggle-cell"></td>
+
+          <!-- keep competitor columns aligned -->
+          <td class="competitor-column"></td>
+          <td class="competitor-column"></td>
+          <td class="competitor-column"></td>
+          <td class="competitor-column"></td>
+          <td class="competitor-column"></td>
+          
+          <!-- Highlight Competitive Advantage column -->
+          <td class="competitive-result-column"></td>
+        </tr>
+
+        <!-- How Muches -->
+        <tr id="how-muches-row">
+          <td colspan="2">How Muches</td>
+          <td><input type="text" class="how-much" value=""></td>
+          <td><input type="text" class="how-much" value=""></td>
+          <td><input type="text" class="how-much" value=""></td>
+
+          <td class="importance-column"></td>
+          <td class="toggle-cell"></td>
+
+          <td class="competitor-column"></td>
+          <td class="competitor-column"></td>
+          <td class="competitor-column"></td>
+          <td class="competitor-column"></td>
+          <td class="competitor-column"></td>
+          
+          <!-- Highlight Competitive Advantage column -->
+          <td class="competitive-result-column"></td>
+        </tr>
+
+        <!-- Absolute Importance (calc) -->
+        <tr id="absolute-importance-row">
+          <td colspan="2">Absolute Importance</td>
+          <td><input type="number" class="absolute-importance" value="0" readonly></td>
+          <td><input type="number" class="absolute-importance" value="0" readonly></td>
+          <td><input type="number" class="absolute-importance" value="0" readonly></td>
+
+          <td class="importance-column"></td>
+          <td class="toggle-cell"></td>
+
+          <td class="competitor-column"></td>
+          <td class="competitor-column"></td>
+          <td class="competitor-column"></td>
+          <td class="competitor-column"></td>
+          <td class="competitor-column"></td>
+          
+          <!-- Highlight Competitive Advantage column -->
+          <td class="competitive-result-column"></td>
+        </tr>
+
+        <!-- Relative Importance (calc) -->
+        <tr id="relative-importance-row">
+          <td colspan="2">Relative Importance (%)</td>
+          <td><input type="number" class="relative-importance" value="0" readonly></td>
+          <td><input type="number" class="relative-importance" value="0" readonly></td>
+          <td><input type="number" class="relative-importance" value="0" readonly></td>
+
+          <td class="importance-column"></td>
+          <td class="toggle-cell"></td>
+
+          <td class="competitor-column"></td>
+          <td class="competitor-column"></td>
+          <td class="competitor-column"></td>
+          <td class="competitor-column"></td>
+          <td class="competitor-column"></td>
+          
+          <!-- Highlight Competitive Advantage column -->
+          <td class="competitive-result-column"></td>
+        </tr>
+
+        <!-- Technical Competitor Comparison (symbol-based) -->
+        <tr id="technical-competitor-comparison-row">
+          <td colspan="2"><strong>Technical Competitor Comparison</strong></td>
+
+          <!-- one cell per technical characteristic (initially 3) -->
+          <td class="tech-competitor-cell">
+            <div class="tech-competitor-group">
+              <label>Company A</label>
+              <select class="tech-competitor-input">
+                <option value="">-</option>
+                <option value="5">++ (5 – very good)</option>
+                <option value="4">+ (4 – good)</option>
+                <option value="3">0 (3 – neutral)</option>
+                <option value="2">– (2 – weak)</option>
+                <option value="1">–– (1 – very weak)</option>
+              </select>
+
+              <label>Company B</label>
+              <select class="tech-competitor-input">
+                <option value="">-</option>
+                <option value="5">++ (5 – very good)</option>
+                <option value="4">+ (4 – good)</option>
+                <option value="3">0 (3 – neutral)</option>
+                <option value="2">– (2 – weak)</option>
+                <option value="1">–– (1 – very weak)</option>
+              </select>
+
+              <label>Company C</label>
+              <select class="tech-competitor-input">
+                <option value="">-</option>
+                <option value="5">++ (5 – very good)</option>
+                <option value="4">+ (4 – good)</option>
+                <option value="3">0 (3 – neutral)</option>
+                <option value="2">– (2 – weak)</option>
+                <option value="1">–– (1 – very weak)</option>
+              </select>
+
+              <label>Company D</label>
+              <select class="tech-competitor-input">
+                <option value="">-</option>
+                <option value="5">++ (5 – very good)</option>
+                <option value="4">+ (4 – good)</option>
+                <option value="3">0 (3 – neutral)</option>
+                <option value="2">– (2 – weak)</option>
+                <option value="1">–– (1 – very weak)</option>
+              </select>
+
+              <label>Company E</label>
+              <select class="tech-competitor-input">
+                <option value="">-</option>
+                <option value="5">++ (5 – very good)</option>
+                <option value="4">+ (4 – good)</option>
+                <option value="3">0 (3 – neutral)</option>
+                <option value="2">– (2 – weak)</option>
+                <option value="1">–– (1 – very weak)</option>
+              </select>
+            </div>
+          </td>
+
+          <td class="tech-competitor-cell">
+            <div class="tech-competitor-group">
+              <label>Company A</label>
+              <select class="tech-competitor-input">
+                <option value="">-</option>
+                <option value="5">++ (5 – very good)</option>
+                <option value="4">+ (4 – good)</option>
+                <option value="3">0 (3 – neutral)</option>
+                <option value="2">– (2 – weak)</option>
+                <option value="1">–– (1 – very weak)</option>
+              </select>
+
+              <label>Company B</label>
+              <select class="tech-competitor-input">
+                <option value="">-</option>
+                <option value="5">++ (5 – very good)</option>
+                <option value="4">+ (4 – good)</option>
+                <option value="3">0 (3 – neutral)</option>
+                <option value="2">– (2 – weak)</option>
+                <option value="1">–– (1 – very weak)</option>
+              </select>
+
+              <label>Company C</label>
+              <select class="tech-competitor-input">
+                <option value="">-</option>
+                <option value="5">++ (5 – very good)</option>
+                <option value="4">+ (4 – good)</option>
+                <option value="3">0 (3 – neutral)</option>
+                <option value="2">– (2 – weak)</option>
+                <option value="1">–– (1 – very weak)</option>
+              </select>
+
+              <label>Company D</label>
+              <select class="tech-competitor-input">
+                <option value="">-</option>
+                <option value="5">++ (5 – very good)</option>
+                <option value="4">+ (4 – good)</option>
+                <option value="3">0 (3 – neutral)</option>
+                <option value="2">– (2 – weak)</option>
+                <option value="1">–– (1 – very weak)</option>
+              </select>
+
+              <label>Company E</label>
+              <select class="tech-competitor-input">
+                <option value="">-</option>
+                <option value="5">++ (5 – very good)</option>
+                <option value="4">+ (4 – good)</option>
+                <option value="3">0 (3 – neutral)</option>
+                <option value="2">– (2 – weak)</option>
+                <option value="1">–– (1 – very weak)</option>
+              </select>
+            </div>
+          </td>
+
+          <td class="tech-competitor-cell">
+            <div class="tech-competitor-group">
+              <label>Company A</label>
+              <select class="tech-competitor-input">
+                <option value="">-</option>
+                <option value="5">++ (5 – very good)</option>
+                <option value="4">+ (4 – good)</option>
+                <option value="3">0 (3 – neutral)</option>
+                <option value="2">– (2 – weak)</option>
+                <option value="1">–– (1 – very weak)</option>
+              </select>
+
+              <label>Company B</label>
+              <select class="tech-competitor-input">
+                <option value="">-</option>
+                <option value="5">++ (5 – very good)</option>
+                <option value="4">+ (4 – good)</option>
+                <option value="3">0 (3 – neutral)</option>
+                <option value="2">– (2 – weak)</option>
+                <option value="1">–– (1 – very weak)</option>
+              </select>
+
+              <label>Company C</label>
+              <select class="tech-competitor-input">
+                <option value="">-</option>
+                <option value="5">++ (5 – very good)</option>
+                <option value="4">+ (4 – good)</option>
+                <option value="3">0 (3 – neutral)</option>
+                <option value="2">– (2 – weak)</option>
+                <option value="1">–– (1 – very weak)</option>
+              </select>
+
+              <label>Company D</label>
+              <select class="tech-competitor-input">
+                <option value="">-</option>
+                <option value="5">++ (5 – very good)</option>
+                <option value="4">+ (4 – good)</option>
+                <option value="3">0 (3 – neutral)</option>
+                <option value="2">– (2 – weak)</option>
+                <option value="1">–– (1 – very weak)</option>
+              </select>
+
+              <label>Company E</label>
+              <select class="tech-competitor-input">
+                <option value="">-</option>
+                <option value="5">++ (5 – very good)</option>
+                <option value="4">+ (4 – good)</option>
+                <option value="3">0 (3 – neutral)</option>
+                <option value="2">– (2 – weak)</option>
+                <option value="1">–– (1 – very weak)</option>
+              </select>
+            </div>
+          </td>
+
+          <!-- keep the structural tail the same -->
+          <td class="importance-column"></td>
+          <td class="toggle-cell"></td>
+          <td class="competitor-column"></td>
+          <td class="competitor-column"></td>
+          <td class="competitor-column"></td>
+          <td class="competitor-column"></td>
+          <td class="competitor-column"></td>
+          
+          <!-- Highlight Competitive Advantage column -->
+          <td class="competitive-result-column"></td>
+        </tr>
+      </tbody>
+    </table>
+
+    <!-- Legend for symbol mapping (optional)
+    <div class="symbol-legend">
+      <strong>Symbol Legend (Technical Competitor Comparison):</strong>
+      ++ = 5 (very good solution),
+      + = 4,
+      0 = 3,
+      – = 2,
+      –– = 1
+    </div>
+    -->
+  </div>
+{% endblock %}
+
+{% block submit_section %}
+  <button id="generate-plans" class="submit-button">Submit</button>
+
+  <div id="result-tabs" class="tabs-container" style="display: none;">
+    <div class="tab-buttons">
+      <button class="tab-button active" data-tab="pmp">Project Management Plan</button>
+      <button class="tab-button" data-tab="scope">Scope Plan</button>
+      <button class="tab-button" data-tab="stories">User Stories</button>
+      <button class="tab-button" data-tab="risk">Risk Management Plan</button>
+    </div>
+
+    <div class="tab-content" id="pmp">
+      <h2>Project Management Plan</h2>
+      <p class="result-text">[Your generated Project Management Plan will appear here]</p>
+    </div>
+    <div class="tab-content" id="scope" style="display:none;">
+      <h2>Scope Plan</h2>
+      <p class="result-text">[Your generated Scope Plan will appear here]</p>
+    </div>
+    <div class="tab-content" id="stories" style="display:none;">
+      <h2>User Stories</h2>
+      <p class="result-text">[Your generated User Stories will appear here]</p>
+    </div>
+    <div class="tab-content" id="risk" style="display:none;">
+      <h2>Risk Management Plan</h2>
+      <p class="result-text">[Your generated Risk Management Plan will appear here]</p>
+    </div>
+  </div>
+{% endblock %}

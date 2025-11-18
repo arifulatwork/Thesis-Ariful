@@ -1,0 +1,526 @@
+/* ===== GENERAL STYLES ===== */
+body {
+    font-family: 'Roboto', sans-serif;
+    margin: 0;
+    padding: 0;
+    background-color: #f5f5f5;
+    color: #333;
+}
+
+h1 {
+    text-align: center;
+    color: #1976d2;
+    font-weight: 500;
+    margin: 16px 0 16px;
+}
+
+/* ===== LAYOUT STRUCTURE ===== */
+.main-container {
+    display: flex;
+    position: relative;
+    width: 100%;
+    max-width: 100%;
+    margin: 0;
+}
+
+.table-container {
+    flex: 1;
+    overflow-x: auto;
+    background-color: #ffffff;
+    border-radius: 6px;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.08);
+    padding: 8px;
+}
+
+/* ===== TABLE STYLES ===== */
+table {
+    width: 100%;
+    border-collapse: collapse;
+    margin-top: 0;
+}
+
+th,
+td {
+    border: 1px solid #e0e0e0;
+    padding: 6px;
+    text-align: center;
+    font-size: 12px;
+}
+
+th {
+    background-color: #1976d2;
+    color: #ffffff;
+    font-weight: 500;
+    text-transform: uppercase;
+}
+
+th[colspan] {
+    padding: 0;
+}
+
+/* ===== INPUT FIELD STYLES ===== */
+input[type="text"],
+input[type="number"],
+select,
+.relationship-select {
+    width: 100%;
+    padding: 4px 8px;
+    border: 1px solid #e0e0e0;
+    border-radius: 4px;
+    font-size: 12px;
+    color: #333;
+    background-color: #fff;
+    transition: all 0.3s ease;
+    height: 30px;
+    box-sizing: border-box;
+}
+
+input[type="text"]:focus,
+input[type="number"]:focus,
+select:focus,
+.relationship-select:focus {
+    border-color: #1976d2;
+    box-shadow: 0 0 0 2px rgba(25, 118, 210, 0.2);
+    outline: none;
+}
+
+/* Select dropdown arrow styling */
+select,
+.relationship-select {
+    appearance: none;
+    -webkit-appearance: none;
+    -moz-appearance: none;
+    background-image: url("data:image/svg+xml;charset=UTF-8,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='%231976d2'%3e%3cpath d='M7 10l5 5 5-5z'/%3e%3c/svg%3e");
+    background-repeat: no-repeat;
+    background-position: right 8px center;
+    background-size: 14px;
+    padding-right: 26px;
+    cursor: pointer;
+}
+
+/* ===== SPECIAL ELEMENTS ===== */
+/* Header controls */
+.requirement-controls-row,
+.characteristic-controls-row,
+.importance-controls-row {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    padding: 6px 0;
+}
+
+.requirement-controls-row span,
+.characteristic-controls-row span,
+.importance-controls-row span {
+    font-weight: 500;
+    color: white;
+    font-size: 1em;
+}
+
+/* NEW IMPORTANCE COLUMN STYLES */
+.importance-header {
+    background-color: #1976d2;
+    color: #ffffff;
+    font-weight: 500;
+    text-transform: uppercase;
+}
+
+.importance-column {
+    background-color: #e3f2fd;
+    border: 1px solid #bbdefb;
+    min-width: 110px;
+}
+
+.characteristic-importance {
+    width: 100%;
+    padding: 4px 8px;
+    border: 1px solid #bbdefb;
+    border-radius: 4px;
+    font-size: 12px;
+    color: #1976d2;
+    background-color: #e3f2fd;
+    font-weight: 500;
+    text-align: center;
+    height: 30px;
+    box-sizing: border-box;
+    cursor: default;
+}
+
+/* Icon buttons */
+.icon-button {
+    width: 26px;
+    height: 26px;
+    border-radius: 50%;
+    background-color: #1976d2;
+    color: white;
+    border: none;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    padding: 0;
+}
+
+.icon-button:hover {
+    background-color: #1565c0;
+    transform: scale(1.08);
+}
+
+.icon {
+    font-size: 14px;
+    font-weight: bold;
+    line-height: 1;
+}
+
+/* Difficulty header */
+.difficulty-header {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    text-align: center;
+}
+
+.difficulty-subtext {
+    font-size: 0.7em;
+    font-weight: 400;
+    margin-top: 4px;
+    line-height: 1.2;
+    font-style: italic;
+}
+
+/* Editable names */
+.requirement-name,
+.characteristic-name {
+    font-weight: 500;
+    color: #1976d2;
+}
+
+/* Row hover effect */
+tr:hover {
+    background-color: #f1f8ff;
+}
+
+/* Column sizing */
+th:first-child,
+td:first-child {
+    min-width: 200px;
+    width: 22%;
+}
+
+th:nth-child(n+3):not(.toggle-header):not(.competitor-header):not(.importance-header),
+td:nth-child(n+3):not(.toggle-cell):not(.competitor-column):not(.importance-column) {
+    min-width: 170px;
+    width: auto;
+}
+
+/* Importance column specific sizing */
+.importance-column {
+    min-width: 110px;
+    width: auto;
+}
+
+/* Adjust competitor column positioning */
+.competitor-column {
+    min-width: 90px;
+}
+
+/* ===== GLOBAL COMPETITOR SUMMARY (RIGHT SIDE) ===== */
+#competitor-summary {
+    margin-top: 12px;
+    margin-left: auto;            /* push to right side */
+    max-width: 320px;
+    padding: 8px 10px;
+    background-color: #e3f2fd;
+    border: 1px solid #bbdefb;
+    border-radius: 6px;
+    font-size: 11px;
+    line-height: 1.4;
+}
+
+.competitor-summary strong {
+    color: #1976d2;
+}
+
+/* ===== ROOF ABOVE TARGET DIRECTION (TRi–TRj Correlation) ===== */
+.roof-row th {
+    background-color: #bbdefb;
+    border-bottom: 1px solid #90caf9;
+    height: 28px;
+    text-align: center;
+    font-size: 11px;
+}
+
+/* Each roof cell that holds the + / 0 / - select */
+.roof-cell {
+    position: relative;
+    background-color: #e3f2fd;
+    padding: 3px 4px;
+}
+
+/* The correlation select (+ / 0 / -) */
+.roof-correlation,
+.roof-corr-select {
+    width: 100%;
+    padding: 3px 6px;
+    border-radius: 4px;
+    border: 1px solid #bbdefb;
+    background-color: #fff;
+    height: 24px;
+    font-size: 11px;
+    box-sizing: border-box;
+}
+
+/* Small triangle cap to give house-roof impression */
+.roof-cell::before {
+    content: "";
+    position: absolute;
+    top: -8px;
+    left: 50%;
+    transform: translateX(-50%);
+    border-left: 8px solid transparent;
+    border-right: 8px solid transparent;
+    border-bottom: 8px solid #1976d2;
+}
+
+/* ===== TARGET DIRECTION ROW ===== */
+.target-direction-header {
+    background-color: #1565c0;
+    color: #fff;
+    font-weight: 500;
+    text-transform: uppercase;
+    text-align: center;
+}
+
+.target-direction-cell {
+    background-color: #e3f2fd;
+}
+
+.target-direction {
+    width: 100%;
+    padding: 3px 6px;
+    border-radius: 4px;
+    border: 1px solid #bbdefb;
+    background-color: #fff;
+    height: 26px;
+    font-size: 11px;
+}
+
+/* ===== RESPONSIVE DESIGN ===== */
+@media (max-width: 768px) {
+    .requirement-controls-row,
+    .characteristic-controls-row,
+    .importance-controls-row {
+        gap: 5px;
+        flex-wrap: wrap;
+    }
+
+    .requirement-controls-row span,
+    .characteristic-controls-row span,
+    .importance-controls-row span {
+        order: -1;
+        flex-basis: 100%;
+        text-align: center;
+    }
+
+    .icon-button {
+        width: 24px;
+        height: 24px;
+    }
+
+    .table-container {
+        padding: 6px;
+    }
+
+    th,
+    td {
+        padding: 5px;
+        font-size: 11px;
+    }
+
+    input[type="text"],
+    input[type="number"],
+    select,
+    .relationship-select {
+        padding: 4px 6px;
+        font-size: 11px;
+        height: 26px;
+    }
+
+    th:first-child,
+    td:first-child {
+        min-width: 160px;
+    }
+
+    th:nth-child(n+3):not(.toggle-header):not(.competitor-header):not(.importance-header),
+    td:nth-child(n+3):not(.toggle-cell):not(.competitor-column):not(.importance-column) {
+        min-width: 140px;
+    }
+
+    .importance-column {
+        min-width: 90px;
+    }
+
+    .characteristic-importance {
+        padding: 4px 6px;
+        font-size: 11px;
+        height: 26px;
+    }
+
+    /* On small screens, let the summary go full width */
+    #competitor-summary {
+        max-width: 100%;
+    }
+}
+
+/* Submit Button CSS Start  */
+.submit-section {
+    margin-top: 24px;
+    text-align: center;
+    width: 100%;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    flex-direction: column;
+}
+
+.submit-button {
+    padding: 10px 20px;
+    font-size: 14px;
+    font-weight: 500;
+    background-color: #1976d2;
+    color: white;
+    border: none;
+    border-radius: 6px;
+    cursor: pointer;
+    transition: background-color 0.3s ease;
+}
+
+.submit-button:hover {
+    background-color: #1565c0;
+}
+
+.tabs-container {
+    margin-top: 24px;
+    max-width: 1000px;
+    margin-left: auto;
+    margin-right: auto;
+    text-align: left;
+}
+
+.tab-buttons {
+    display: flex;
+    gap: 8px;
+    margin-bottom: 16px;
+    justify-content: center;
+}
+
+.tab-button {
+    padding: 6px 12px;
+    background-color: #e3f2fd;
+    border: 1px solid #90caf9;
+    color: #1976d2;
+    border-radius: 4px;
+    cursor: pointer;
+    font-weight: 500;
+    font-size: 13px;
+    transition: all 0.3s ease;
+}
+
+.tab-button:hover {
+    background-color: #bbdefb;
+}
+
+.tab-button.active {
+    background-color: #1976d2;
+    color: white;
+    border-color: #1976d2;
+}
+
+.tab-content {
+    background-color: #fff;
+    padding: 16px;
+    border-radius: 8px;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.08);
+}
+
+.tab-content h2 {
+    margin-top: 0;
+    color: #1976d2;
+}
+
+.result-text {
+    font-size: 13px;
+    color: #444;
+}
+/* Submit Button CSS End  */
+
+@media (max-width: 480px) {
+    .difficulty-subtext {
+        font-size: 0.6em;
+        line-height: 1.1;
+    }
+
+    .importance-column {
+        min-width: 80px;
+    }
+
+    .characteristic-importance {
+        padding: 4px 6px;
+        font-size: 11px;
+        height: 24px;
+    }
+}
+
+/* ===== TECHNICAL COMPETITOR COMPARISON (A–E, ++ / + / 0 / – / ––) ===== */
+.tech-competitor-cell {
+    background-color: #fafafa;
+    vertical-align: top;
+}
+
+/* Layout labels + selects nicely in each cell */
+.tech-competitor-group {
+    display: grid;
+    grid-template-columns: 1fr 1.5fr; /* label | select */
+    column-gap: 6px;
+    row-gap: 3px;
+    align-items: center;
+    text-align: left;
+    font-size: 11px;
+}
+
+.tech-competitor-group label {
+    font-weight: 500;
+    color: #1976d2;
+}
+
+/* Reuse your select styles but make them a bit tighter for this area */
+.tech-competitor-input {
+    font-size: 11px;
+    padding: 3px 6px;
+    height: 26px;
+}
+
+/* Legend under the table */
+.symbol-legend {
+    margin-top: 6px;
+    font-size: 11px;
+    color: #555;
+    background-color: #e3f2fd;
+    border: 1px solid #bbdefb;
+    border-radius: 4px;
+    padding: 6px 8px;
+}
+
+/* Mobile tweaks for the tech competitor block */
+@media (max-width: 768px) {
+    .tech-competitor-group {
+        grid-template-columns: 1fr; /* label above select on small screens */
+    }
+
+    .tech-competitor-input {
+        width: 100%;
+    }
+}

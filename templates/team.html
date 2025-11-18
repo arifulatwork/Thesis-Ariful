@@ -1,0 +1,432 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Our Team - House of Quality</title>
+    <style>
+        /* Enhanced Navbar Styles */
+        .navbar {
+            background-color: #1976d2;
+            color: white;
+            padding: 0;
+            margin: 0 auto 24px;
+            border-radius: 8px 8px 0 0;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.15);
+            max-width: 1200px;
+            width: calc(100% - 40px);
+        }
+
+        .navbar-container {
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: space-between;
+            align-items: center;
+            padding: 0 16px;
+            margin: 0 auto;
+        }
+
+        .navbar-brand {
+            font-size: 1.5rem;
+            font-weight: 700;
+            color: white;
+            text-decoration: none;
+            display: flex;
+            flex-direction: column;
+            line-height: 1.1;
+            padding: 12px 0;
+        }
+
+        .navbar-brand span:first-child {
+            font-weight: 300;
+            letter-spacing: 1px;
+        }
+
+        .navbar-brand span:last-child {
+            font-weight: 700;
+            letter-spacing: 2px;
+        }
+
+        .navbar-toggler {
+            display: none;
+            background: none;
+            border: none;
+            color: white;
+            cursor: pointer;
+            padding: 1rem;
+            flex-direction: column;
+            justify-content: center;
+            gap: 4px;
+        }
+
+        .toggler-bar {
+            display: block;
+            width: 24px;
+            height: 2px;
+            background-color: white;
+            transition: all 0.3s ease;
+        }
+
+        .navbar-toggler[aria-expanded="true"] .toggler-bar:nth-child(1) {
+            transform: translateY(6px) rotate(45deg);
+        }
+
+        .navbar-toggler[aria-expanded="true"] .toggler-bar:nth-child(2) {
+            opacity: 0;
+        }
+
+        .navbar-toggler[aria-expanded="true"] .toggler-bar:nth-child(3) {
+            transform: translateY(-6px) rotate(-45deg);
+        }
+
+        .navbar-nav {
+            display: flex;
+            list-style: none;
+            margin: 0;
+            padding: 0;
+            gap: 4px;
+        }
+
+        .nav-item {
+            position: relative;
+        }
+
+        .nav-link {
+            color: white;
+            text-decoration: none;
+            padding: 1rem 1.5rem;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            font-weight: 500;
+            transition: all 0.3s ease;
+            border-radius: 4px;
+        }
+
+        .nav-link:hover {
+            background-color: rgba(255, 255, 255, 0.15);
+        }
+
+        .nav-link.active {
+            background-color: rgba(255, 255, 255, 0.25);
+        }
+
+        .nav-link.active::after {
+            content: '';
+            position: absolute;
+            bottom: 0;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 50%;
+            height: 3px;
+            background-color: white;
+            border-radius: 3px 3px 0 0;
+        }
+
+        .nav-icon {
+            width: 20px;
+            height: 20px;
+            fill: currentColor;
+        }
+
+        /* Team Page Styles */
+        body {
+            font-family: 'Roboto', sans-serif;
+            margin: 0;
+            padding: 0;
+            background-color: #f5f7fa;
+            color: #333;
+        }
+
+        .main-container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+
+        .page-header {
+            text-align: center;
+            margin-bottom: 40px;
+        }
+
+        .page-header h1 {
+            color: #1976d2;
+            font-size: 2.5rem;
+            margin-bottom: 10px;
+        }
+
+        .page-header p {
+            font-size: 1.2rem;
+            color: #666;
+            max-width: 800px;
+            margin: 0 auto;
+        }
+
+        .team-section {
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: center;
+            gap: 30px;
+            margin-bottom: 50px;
+        }
+
+        .professor-card {
+            background-color: white;
+            border-radius: 10px;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+            padding: 30px;
+            text-align: center;
+            width: 100%;
+            max-width: 300px;
+            transition: transform 0.3s ease;
+        }
+
+        .professor-card:hover {
+            transform: translateY(-5px);
+        }
+
+        .professor-photo {
+            width: 200px;
+            height: 200px;
+            border-radius: 50%;
+            object-fit: cover;
+            margin: 0 auto 20px;
+            border: 4px solid #1976d2;
+        }
+
+        .professor-card h2 {
+            color: #1976d2;
+            margin-bottom: 10px;
+        }
+
+        .professor-card p {
+            color: #666;
+            margin-bottom: 15px;
+        }
+
+        .team-members {
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: center;
+            gap: 25px;
+            width: 100%;
+        }
+
+        .member-card {
+            background-color: white;
+            border-radius: 10px;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+            padding: 25px;
+            text-align: center;
+            width: calc(25% - 25px);
+            min-width: 200px;
+            transition: transform 0.3s ease;
+        }
+
+        .member-card:hover {
+            transform: translateY(-5px);
+        }
+
+        .member-photo {
+            width: 120px;
+            height: 120px;
+            border-radius: 50%;
+            object-fit: cover;
+            margin: 0 auto 15px;
+            border: 3px solid #1976d2;
+        }
+
+        .member-card h3 {
+            color: #1976d2;
+            margin-bottom: 8px;
+        }
+
+        .member-card p {
+            color: #666;
+            margin-bottom: 0;
+        }
+
+        .funding-section {
+            text-align: center;
+            margin-top: 50px;
+            padding: 30px;
+            background-color: white;
+            border-radius: 10px;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+        }
+
+        .funding-section h2 {
+            color: #1976d2;
+            margin-bottom: 20px;
+        }
+
+        .eu-logo {
+            max-width: 300px;
+            height: auto;
+            margin: 20px auto;
+        }
+
+        /* Responsive Styles */
+        @media (max-width: 992px) {
+            .navbar {
+                width: calc(100% - 32px);
+            }
+            
+            .member-card {
+                width: calc(50% - 25px);
+            }
+        }
+
+        @media (max-width: 768px) {
+            .navbar-toggler {
+                display: flex;
+            }
+
+            .navbar-collapse {
+                display: none;
+                width: 100%;
+                padding: 0 0 1rem 0;
+            }
+
+            .navbar-collapse.show {
+                display: block;
+            }
+
+            .navbar-nav {
+                flex-direction: column;
+                gap: 0;
+            }
+
+            .nav-item {
+                width: 100%;
+            }
+
+            .nav-link {
+                padding: 0.75rem 1rem;
+                border-radius: 0;
+            }
+
+            .nav-link.active::after {
+                display: none;
+            }
+            
+            .member-card {
+                width: 100%;
+            }
+            
+            .page-header h1 {
+                font-size: 2rem;
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- Navbar Start -->
+    <nav class="navbar">
+        <div class="navbar-container">
+            <div class="navbar-brand">
+                <span>Quality</span>
+                <span>Matrix</span>
+            </div>
+            <button class="navbar-toggler" aria-expanded="false" aria-label="Toggle navigation">
+                <span class="toggler-bar"></span>
+                <span class="toggler-bar"></span>
+                <span class="toggler-bar"></span>
+            </button>
+            <div class="navbar-collapse">
+                <ul class="navbar-nav">
+                    <li class="nav-item">
+                        <a href="{{ url_for('index') }}" class="nav-link">
+                            <svg class="nav-icon" viewBox="0 0 24 24"><path d="M10 20v-6h4v6h5v-8h3L12 3 2 12h3v8z"/></svg>
+                            <span>Home</span>
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a href="{{ url_for('team') }}" class="nav-link active">
+                            <svg class="nav-icon" viewBox="0 0 24 24"><path d="M12 3L1 9l11 6 9-4.91V17h2V9M5 13.18v4L12 21l7-3.82v-4L12 17l-7-3.82z"/></svg>
+                            <span>Our Team</span>
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a href="{{ url_for('contact') }}" class="nav-link">
+                            <svg class="nav-icon" viewBox="0 0 24 24"><path d="M20 4H4c-1.1 0-1.99.9-1.99 2L2 18c0 1.1.9 2 2 2h16c1.1 0 2-.9 2-2V6c0-1.1-.9-2-2-2zm0 4l-8 5-8-5V6l8 5 8-5v2z"/></svg>
+                            <span>Contact</span>
+                        </a>
+                    </li>
+                </ul>
+            </div>
+        </div>
+    </nav>
+    <!-- Navbar End -->
+    
+    <div class="main-container">
+        <div class="page-header">
+            <h1>Meet Our Team</h1>
+            <p>Our dedicated team of professionals working together to deliver exceptional quality and innovation in every project we undertake.</p>
+        </div>
+        
+        <div class="team-section">
+            <div class="professor-card">
+                <img src="https://greentechlatvia.eu/wp-content/uploads/2025/10/A.-Jansone-300x300.png" alt="Professor" class="professor-photo">
+                <h2>Prof Anita Jansone</h2>
+                <p>Project Lead & Supervisor</p>
+                <!-- <p>With over 15 years of experience in quality management and research, our professor provides expert guidance and leadership for our team.</p> -->
+            </div>
+            
+            <div class="team-members">
+                <div class="member-card">
+                    <img src="https://media.licdn.com/dms/image/v2/D5603AQHIygPKnUAkpA/profile-displayphoto-scale_400_400/B56ZnfMop_J8Ag-/0/1760386259888?e=1764806400&v=beta&t=uIqrXYytqxmR4j1D2ODaURbeHFvre8mFBHoN_48HucQ" alt="Md Ariful Islam" class="member-photo">
+                    <h3>Md Ariful Islam</h3>
+                    <p>Laborants</p>
+                </div>
+                
+                <!-- <div class="member-card">
+                    <img src="https://via.placeholder.com/120" alt="Laborants" class="member-photo">
+                    <h3>Laborants</h3>
+                    <p>Research Assistant</p>
+                </div> -->
+                
+                <div class="member-card">
+                    <img src="https://scontent.frix8-1.fna.fbcdn.net/v/t39.30808-6/514330671_10096390220481123_9029520122684870093_n.jpg?_nc_cat=103&ccb=1-7&_nc_sid=a5f93a&_nc_ohc=06gjB_mjS9gQ7kNvwEU0e7K&_nc_oc=AdnKVG9qHbVCoeuEdVB_HyUFQ6zF6ZsyoHnqCDrdYoLvCWkBP1CdgPtRmo6vlrjaSj4zA8cpAGM3AyWixWU-sO62&_nc_zt=23&_nc_ht=scontent.frix8-1.fna&_nc_gid=woYQOYesVZtYxxMERLniTw&oh=00_Afgw93Vu7c1795xxYmpt8rTwlCaDC1lcBfOAXff4EgcPEQ&oe=69229652" alt="Ovinda Laborants" class="member-photo">
+                    <h3>Ovinda Dilshan Nawalage</h3>
+                    <p>Laborants</p>
+                </div>
+                
+                <div class="member-card">
+                    <img src="https://scontent.frix8-1.fna.fbcdn.net/v/t39.30808-6/560100194_25101967736073490_5915091567906019582_n.jpg?_nc_cat=105&ccb=1-7&_nc_sid=6ee11a&_nc_ohc=I8vXv_B0x_8Q7kNvwF0jTf_&_nc_oc=Adl7dI8lB08ungbh3k7HIuRJNNyzR1b5tvleTJzJ-LRFM_pRef2gIRYr0DhkewM8iiqb2UEJTbgbzooLy-9BQG2g&_nc_zt=23&_nc_ht=scontent.frix8-1.fna&_nc_gid=j2EBdgZXaREGZD8LfFTXvQ&oh=00_AfjLp9ifws5V4GYt8c9is-QwarmNQzLjm3hnDRTFOeQH0Q&oe=6922A3D1" alt="Chatra Laborants" class="member-photo">
+                    <h3>Chathra Wijesinghe</h3>
+                    <p>Laborants</p>
+                </div>
+                
+                <div class="member-card">
+                    <img src="https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcT-GJcqTtVoKjB0sG3v-e97JA4yzkqP_kQ71g&s" alt="Hasala Laborants" class="member-photo">
+                    <h3>Hasala Rathnayaka</h3>
+                    <p>Laborants</p>
+                    <p>December 2024 - April 2025</p>
+                </div>
+            </div>
+        </div>
+        
+        <div class="funding-section">
+            <h2>Project Funding</h2>
+            <p>This research project is proudly funded by the European Union, supporting innovation and quality improvement initiatives across industries.</p>
+            <img src="https://media.licdn.com/dms/image/v2/D562DAQFEopGizyYS8w/profile-treasury-image-shrink_1280_1280/B56Zl4s4BDJ4AQ-/0/1758666654745?e=1764104400&v=beta&t=YIo840BBogWBOeXLP61lp4RkRp2x9g8EKpCTljssEPQ" alt="European Union Funding" class="eu-logo">
+            <p>The European Union's commitment to research and development enables us to push the boundaries of quality management and deliver impactful solutions.</p>
+        </div>
+    </div>
+
+    <script>
+        // Navbar toggle functionality
+        document.addEventListener('DOMContentLoaded', function() {
+            const navbarToggler = document.querySelector('.navbar-toggler');
+            const navbarCollapse = document.querySelector('.navbar-collapse');
+            
+            navbarToggler.addEventListener('click', function() {
+                const expanded = this.getAttribute('aria-expanded') === 'true' || false;
+                this.setAttribute('aria-expanded', !expanded);
+                navbarCollapse.classList.toggle('show');
+            });
+        });
+    </script>
+</body>
+</html>
