@@ -3,11 +3,11 @@
     background-color: #1976d2;
     color: white;
     padding: 0;
-    margin: 0 0 24px;          /* no side margins */
-    border-radius: 0;          /* full-width bar, no rounded corners */
+    margin: 0 auto 24px;
+    border-radius: 8px 8px 0 0;
     box-shadow: 0 2px 10px rgba(0, 0, 0, 0.15);
-    max-width: 100%;           /* remove 1200px cap */
-    width: 100%;               /* full screen width */
+    max-width: 1200px;
+    width: calc(100% - 40px);
 }
 
 .navbar-container {
@@ -125,7 +125,7 @@
 /* Responsive Navbar */
 @media (max-width: 992px) {
     .navbar {
-        width: 100%;           /* still full width on tablets */
+        width: calc(100% - 32px);
     }
 }
 
