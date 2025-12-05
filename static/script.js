@@ -331,64 +331,67 @@ document.addEventListener('DOMContentLoaded', function () {
 
     // NEW: Update Highlight Competitive Advantage using:
     // Score = Importance × Σ(Company1 – Competitor 2–5)
-    function updateCompetitiveResults() {
-        const requirementRows = Array.from(tbody.querySelectorAll('tr')).filter(row => !row.id);
+    // NEW: Update Highlight Competitive Advantage using:
+// Score = Importance × (OurCompany - BestCompetitor)
+function updateCompetitiveResults() {
+    const requirementRows = Array.from(tbody.querySelectorAll('tr')).filter(row => !row.id);
 
-        requirementRows.forEach(row => {
-            const competitiveResultCell = row.querySelector('.competitive-result-text');
-            if (!competitiveResultCell) return;
+    requirementRows.forEach(row => {
+        const competitiveResultCell = row.querySelector('.competitive-result-text');
+        if (!competitiveResultCell) return;
 
-            const importance = parseFloat(row.querySelector('.importance')?.value) || 0;
-            const competitorInputs = row.querySelectorAll('.competitor-column input');
-            const ratings = Array.from(competitorInputs).map(input => {
-                const v = parseFloat(input.value);
-                return isNaN(v) ? 0 : v;
-            });
-
-            if (ratings.length < 2 || importance === 0) {
-                competitiveResultCell.textContent = 'No data';
-                return;
-            }
-
-            const ourRating = ratings[0]; // Company 1 = Our Company
-            const competitorRatings = ratings.slice(1).filter(v => v > 0); // Company 2–5 (valid only)
-
-            if (ourRating <= 0) {
-                competitiveResultCell.textContent = 'No valid score for Our Company';
-                return;
-            }
-
-            if (competitorRatings.length === 0) {
-                competitiveResultCell.textContent = 'No competitor data';
-                return;
-            }
-
-            // Σ(Company1 – Competitor 2–5)
-            let totalDiff = 0;
-            competitorRatings.forEach(rk => {
-                totalDiff += (ourRating - rk);
-            });
-
-            const totalScore = importance * totalDiff;
-
-            let comment = '';
-            if (totalScore > 0) {
-                comment = 'Overall advantage vs competitors (positive score).';
-            } else if (totalScore < 0) {
-                comment = 'Overall disadvantage – competitors lead (negative score).';
-            } else {
-                comment = 'At parity with competitors (no net advantage).';
-            }
-
-            competitiveResultCell.textContent =
-                `Score: ${totalScore.toFixed(2)} | Importance: ${importance.toFixed(2)}, ` +
-                `Our Rating: ${ourRating.toFixed(1)}/5, Competitors: ${competitorRatings.join(', ')}. ` +
-                comment;
+        const importance = parseFloat(row.querySelector('.importance')?.value) || 0;
+        const competitorInputs = row.querySelectorAll('.competitor-column input');
+        const ratings = Array.from(competitorInputs).map(input => {
+            const v = parseFloat(input.value);
+            return isNaN(v) ? 0 : v;
         });
 
-        // also update the global summary under the table
-        updateCompetitorSummary();
-    }
+        if (ratings.length < 2 || importance === 0) {
+            competitiveResultCell.textContent = 'No data';
+            return;
+        }
+
+        const ourRating = ratings[0]; // Company 1 = Our Company
+        const competitorRatings = ratings.slice(1).filter(v => v > 0); // Companies 2–5
+
+        if (ourRating <= 0) {
+            competitiveResultCell.textContent = 'No valid score for Our Company';
+            return;
+        }
+
+        if (competitorRatings.length === 0) {
+            competitiveResultCell.textContent = 'No competitor data';
+            return;
+        }
+
+        // ✅ Best competitor among Companies 2–5
+        const bestCompetitorRating = Math.max(...competitorRatings);
+
+        // ✅ Step 14 formula: Importance × (Our – BestCompetitor)
+        const diff = ourRating - bestCompetitorRating;
+        const totalScore = importance * diff;
+
+        let comment = '';
+        if (totalScore > 0) {
+            comment = 'Overall advantage vs best competitor (positive score).';
+        } else if (totalScore < 0) {
+            comment = 'Overall disadvantage – best competitor leads (negative score).';
+        } else {
+            comment = 'At parity with best competitor (no net advantage).';
+        }
+
+        competitiveResultCell.textContent =
+            `Score: ${totalScore.toFixed(2)} | Importance: ${importance.toFixed(2)}, ` +
+            `Our Rating: ${ourRating.toFixed(1)}/5, Best Competitor: ${bestCompetitorRating.toFixed(1)}/5, ` +
+            `Others: ${competitorRatings.join(', ')}. ` +
+            comment;
+    });
+
+    // Global summary under the table (this is already OK)
+    updateCompetitorSummary();
+}
+
 
     function buildTechCompetitorCell() {
         const td = document.createElement('td');
