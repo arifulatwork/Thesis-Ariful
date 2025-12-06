@@ -12,7 +12,7 @@ document.addEventListener('DOMContentLoaded', function () {
         updateImportanceValues();
         setupCompetitorColumns();      // now a no-op, kept for safety
         ensureTechnicalComparisonRow();
-        initializeTechCompetitorDefaults();   // 🔹 NEW: pre-fill tech competitor A–E
+        initializeTechCompetitorDefaults();   // 🔹 pre-fill tech competitor A–E
         ensureCriticalCharacteristicsRow();
         updateCriticalCharacteristics();
         syncTopCharacteristicRow();    // 🔹 Target Direction row with smart defaults
@@ -44,7 +44,6 @@ document.addEventListener('DOMContentLoaded', function () {
         const topRow = thead.querySelector('.characteristic-top-row');
         if (!topRow) return;
 
-        // Get how many characteristics we have
         const nameInputs = Array.from(thead.querySelectorAll('.characteristic-name'));
         const charCount = nameInputs.length || 3;
 
@@ -129,11 +128,49 @@ document.addEventListener('DOMContentLoaded', function () {
         }
     }
 
-    // 🔹 NEW: Roof row with TRi–TRj pairwise correlations
-    // For each characteristic j:
-    //   - If j = 0: no previous TR, cell is empty
-    //   - If j > 0: create one row per i < j:
-    //       TRi [ + / 0 / - ]
+    // 🔹 Default correlation matrix for first 6 Technical Characteristics
+    // Index mapping (0-based):
+    // TR1: Server response time
+    // TR2: Recommendation algorithm accuracy
+    // TR3: UI complexity / number of steps
+    // TR4: Payment encryption level
+    // TR5: Payment security
+    // TR6: Support automation (chatbot AI)
+    const correlationDefaults = {
+        // TR1 with others
+        '0-1': '-', // Accurate algorithm can hurt latency
+        '0-2': '-', // More UI steps often worsen perceived speed
+        '0-3': '-', // Stronger encryption can add overhead
+        '0-4': '0', // Security policy vs raw latency mostly orthogonal
+        '0-5': '0', // Chatbot load not always strongly tied to core speed
+
+        // TR2 with others
+        '1-2': '0', // Accuracy vs steps mostly independent
+        '1-3': '+', // Better handling of data flows helps accuracy
+        '1-4': '+', // Stronger data protection supports trustworthy models
+        '1-5': '+', // Good models and good AI support go together
+
+        // TR3 with others
+        '2-3': '0', // UI steps vs encryption mostly orthogonal
+        '2-4': '0',
+        '2-5': '0',
+
+        // TR4 with others
+        '3-4': '+', // Encryption and security reinforce each other
+        '3-5': '0', // Encryption vs chatbot mostly independent
+
+        // TR5 with others
+        '4-5': '+', // Security and automation help each other
+    };
+
+    function getCorrelationDefault(i, j) {
+        const low = Math.min(i, j);
+        const high = Math.max(i, j);
+        const key = `${low}-${high}`;
+        return correlationDefaults[key] || '';
+    }
+
+    // 🔹 Roof row with TRi–TRj pairwise correlations
     function syncRoofRow() {
         const roofRow = thead.querySelector('.roof-row');
         if (!roofRow) return;
@@ -143,7 +180,6 @@ document.addEventListener('DOMContentLoaded', function () {
         const totalCompetitorCols = 6; // 5 companies + highlight
 
         // Save previous correlation values so they survive re-renders
-        // Key = "i-j" (e.g. "0-2" means correlation between TR1 and TR3)
         const prevMap = {};
         roofRow.querySelectorAll('.roof-corr-select').forEach(sel => {
             const i = sel.getAttribute('data-i');
@@ -169,7 +205,6 @@ document.addEventListener('DOMContentLoaded', function () {
 
             // For the first characteristic (TR1), there is no previous TR to compare with
             if (j === 0) {
-                // leave empty (or put a dash if you want)
                 roofRow.appendChild(roofTh);
                 continue;
             }
@@ -185,7 +220,7 @@ document.addEventListener('DOMContentLoaded', function () {
 
                 const label = document.createElement('span');
                 label.className = 'roof-corr-label';
-                label.textContent = `TR${i + 1}`; // or use nameInputs[i].value if you prefer
+                label.textContent = `TR${i + 1}`;
 
                 const select = document.createElement('select');
                 select.className = 'roof-corr-select';
@@ -199,10 +234,15 @@ document.addEventListener('DOMContentLoaded', function () {
                     <option value="-">-</option>
                 `;
 
-                // Restore previous value if exists
                 const key = `${i}-${j}`;
+
                 if (prevMap[key]) {
+                    // keep whatever user selected before
                     select.value = prevMap[key];
+                } else {
+                    // first time: use our domain-based default if we have one
+                    const def = getCorrelationDefault(i, j);
+                    if (def) select.value = def;
                 }
 
                 row.appendChild(label);
@@ -414,7 +454,7 @@ document.addEventListener('DOMContentLoaded', function () {
                 comment;
         });
 
-        // Global summary under the table (this is already OK)
+        // Global summary under the table
         updateCompetitorSummary();
     }
 
@@ -468,7 +508,7 @@ document.addEventListener('DOMContentLoaded', function () {
         return td;
     }
 
-    // 🔹 NEW: Pre-fill Technical Competitor Comparison for A–E (only if empty)
+    // 🔹 Pre-fill Technical Competitor Comparison for A–E (only if empty)
     function initializeTechCompetitorDefaults() {
         const techCells = Array.from(
             document.querySelectorAll('#technical-competitor-comparison-row .tech-competitor-cell')
@@ -504,7 +544,7 @@ document.addEventListener('DOMContentLoaded', function () {
         });
     }
 
-    // UPDATED: Critical cell -> Yes/No text
+    // Critical cell -> Yes/No text
     function buildCriticalCharacteristicCell() {
         const td = document.createElement('td');
         td.innerHTML = `<input type="text" class="critical-characteristic" value="No" readonly>`;
@@ -848,10 +888,10 @@ document.addEventListener('DOMContentLoaded', function () {
         updateImportanceValues();
         validateForm();
         ensureTechnicalComparisonRow();
-        initializeTechCompetitorDefaults();   // 🔹 Fill new tech column if within first 6
+        initializeTechCompetitorDefaults();   // Fill new tech column if within first 6
         ensureCriticalCharacteristicsRow();
-        syncTopCharacteristicRow();    // 🔹 refresh Target Direction
-        syncRoofRow();                 // 🔹 refresh roof
+        syncTopCharacteristicRow();    // refresh Target Direction
+        syncRoofRow();                 // refresh roof
         updateCompetitiveResults();
     }
 
@@ -903,10 +943,10 @@ document.addEventListener('DOMContentLoaded', function () {
             updateImportanceValues();
             validateForm();
             ensureTechnicalComparisonRow();
-            initializeTechCompetitorDefaults();   // 🔹 keep defaults consistent after delete
+            initializeTechCompetitorDefaults();   // keep defaults consistent after delete
             ensureCriticalCharacteristicsRow();
-            syncTopCharacteristicRow();    // 🔹 refresh Target Direction
-            syncRoofRow();                 // 🔹 refresh roof
+            syncTopCharacteristicRow();    // refresh Target Direction
+            syncRoofRow();                 // refresh roof
             updateCompetitiveResults();
         } else {
             alert('At least 3 characteristics must remain.');
@@ -915,8 +955,7 @@ document.addEventListener('DOMContentLoaded', function () {
 
     // Competitor columns – now a no-op (HTML already has headers & result column)
     function setupCompetitorColumns() {
-        // Intentionally left empty: structure is defined in HTML,
-        // and dynamic rows already include competitive-result-column.
+        // Intentionally left empty
     }
 
     // Form validation
@@ -1006,7 +1045,7 @@ document.addEventListener('DOMContentLoaded', function () {
                     validateForm();
 
                     if (this.classList.contains('characteristic-name')) {
-                        // 🔹 sync the top row when a characteristic name changes
+                        // sync the top row when a characteristic name changes
                         syncTopCharacteristicRow();
                         syncRoofRow();
                     }
@@ -1083,6 +1122,27 @@ document.addEventListener('DOMContentLoaded', function () {
             }))
             .filter(char => char && char.name);
 
+        // 🔹 Correlation Matrix (roof TRi–TRj)
+        const charNames = Array.from(
+            document.querySelectorAll('.characteristic-name')
+        ).map(inp => inp.value.trim());
+
+        const correlations = [];
+        document.querySelectorAll('.roof-corr-select').forEach(sel => {
+            const i = parseInt(sel.getAttribute('data-i'), 10);
+            const j = parseInt(sel.getAttribute('data-j'), 10);
+            const v = sel.value;
+            if (!isNaN(i) && !isNaN(j) && v) {
+                correlations.push({
+                    fromIndex: i,
+                    toIndex: j,
+                    from: charNames[i] || `TR${i + 1}`,
+                    to: charNames[j] || `TR${j + 1}`,
+                    correlation: v   // '+', '0', '-'
+                });
+            }
+        });
+
         requirements.sort(
             (a, b) => parseFloat(b.importance) - parseFloat(a.importance)
         );
@@ -1100,6 +1160,9 @@ document.addEventListener('DOMContentLoaded', function () {
 
         - Technical Characteristics (sorted by manualImportance):
         ${JSON.stringify(characteristics, null, 2)}
+
+        - Technical Correlation Matrix (roof TRi–TRj pairs):
+        ${JSON.stringify(correlations, null, 2)}
 
         You MUST structure your response exactly as follows:
 
