@@ -12,9 +12,10 @@ document.addEventListener('DOMContentLoaded', function () {
         updateImportanceValues();
         setupCompetitorColumns();      // now a no-op, kept for safety
         ensureTechnicalComparisonRow();
+        initializeTechCompetitorDefaults();   // 🔹 NEW: pre-fill tech competitor A–E
         ensureCriticalCharacteristicsRow();
         updateCriticalCharacteristics();
-        syncTopCharacteristicRow();    // 🔹 Target Direction row
+        syncTopCharacteristicRow();    // 🔹 Target Direction row with smart defaults
         syncRoofRow();                 // 🔹 Roof TRi–TRj correlation row (+ / 0 / -)
         setupEventListeners();
         setupFormValidation();
@@ -77,9 +78,36 @@ document.addEventListener('DOMContentLoaded', function () {
                 <option value="↓">↓</option>
             `;
 
-            // Restore previous value if exists
             if (prevValues[i]) {
+                // Restore previous user-selected value
                 select.value = prevValues[i];
+            } else {
+                // ✅ Default logic for first 6 technical characteristics
+                // 0: Server response time            -> ↓ (lower is better)
+                // 1: Recommendation accuracy         -> ↑
+                // 2: UI complexity / number of steps -> ↓
+                // 3: Payment encryption level        -> ↑
+                // 4: Payment security                -> ↑
+                // 5: Support automation (chatbot AI) -> ↑
+                switch (i) {
+                    case 0:
+                        select.value = '↓';
+                        break;
+                    case 1:
+                        select.value = '↑';
+                        break;
+                    case 2:
+                        select.value = '↓';
+                        break;
+                    case 3:
+                    case 4:
+                    case 5:
+                        select.value = '↑';
+                        break;
+                    default:
+                        // Any additional characteristics default to neutral
+                        select.value = '0';
+                }
             }
 
             th.appendChild(select);
@@ -330,68 +358,65 @@ document.addEventListener('DOMContentLoaded', function () {
     }
 
     // NEW: Update Highlight Competitive Advantage using:
-    // Score = Importance × Σ(Company1 – Competitor 2–5)
-    // NEW: Update Highlight Competitive Advantage using:
-// Score = Importance × (OurCompany - BestCompetitor)
-function updateCompetitiveResults() {
-    const requirementRows = Array.from(tbody.querySelectorAll('tr')).filter(row => !row.id);
+    // Score = Importance × (OurCompany - BestCompetitor)
+    function updateCompetitiveResults() {
+        const requirementRows = Array.from(tbody.querySelectorAll('tr')).filter(row => !row.id);
 
-    requirementRows.forEach(row => {
-        const competitiveResultCell = row.querySelector('.competitive-result-text');
-        if (!competitiveResultCell) return;
+        requirementRows.forEach(row => {
+            const competitiveResultCell = row.querySelector('.competitive-result-text');
+            if (!competitiveResultCell) return;
 
-        const importance = parseFloat(row.querySelector('.importance')?.value) || 0;
-        const competitorInputs = row.querySelectorAll('.competitor-column input');
-        const ratings = Array.from(competitorInputs).map(input => {
-            const v = parseFloat(input.value);
-            return isNaN(v) ? 0 : v;
+            const importance = parseFloat(row.querySelector('.importance')?.value) || 0;
+            const competitorInputs = row.querySelectorAll('.competitor-column input');
+            const ratings = Array.from(competitorInputs).map(input => {
+                const v = parseFloat(input.value);
+                return isNaN(v) ? 0 : v;
+            });
+
+            if (ratings.length < 2 || importance === 0) {
+                competitiveResultCell.textContent = 'No data';
+                return;
+            }
+
+            const ourRating = ratings[0]; // Company 1 = Our Company
+            const competitorRatings = ratings.slice(1).filter(v => v > 0); // Companies 2–5
+
+            if (ourRating <= 0) {
+                competitiveResultCell.textContent = 'No valid score for Our Company';
+                return;
+            }
+
+            if (competitorRatings.length === 0) {
+                competitiveResultCell.textContent = 'No competitor data';
+                return;
+            }
+
+            // ✅ Best competitor among Companies 2–5
+            const bestCompetitorRating = Math.max(...competitorRatings);
+
+            // ✅ Step 14 formula: Importance × (Our – BestCompetitor)
+            const diff = ourRating - bestCompetitorRating;
+            const totalScore = importance * diff;
+
+            let comment = '';
+            if (totalScore > 0) {
+                comment = 'Overall advantage vs best competitor (positive score).';
+            } else if (totalScore < 0) {
+                comment = 'Overall disadvantage – best competitor leads (negative score).';
+            } else {
+                comment = 'At parity with best competitor (no net advantage).';
+            }
+
+            competitiveResultCell.textContent =
+                `Score: ${totalScore.toFixed(2)} | Importance: ${importance.toFixed(2)}, ` +
+                `Our Rating: ${ourRating.toFixed(1)}/5, Best Competitor: ${bestCompetitorRating.toFixed(1)}/5, ` +
+                `Others: ${competitorRatings.join(', ')}. ` +
+                comment;
         });
 
-        if (ratings.length < 2 || importance === 0) {
-            competitiveResultCell.textContent = 'No data';
-            return;
-        }
-
-        const ourRating = ratings[0]; // Company 1 = Our Company
-        const competitorRatings = ratings.slice(1).filter(v => v > 0); // Companies 2–5
-
-        if (ourRating <= 0) {
-            competitiveResultCell.textContent = 'No valid score for Our Company';
-            return;
-        }
-
-        if (competitorRatings.length === 0) {
-            competitiveResultCell.textContent = 'No competitor data';
-            return;
-        }
-
-        // ✅ Best competitor among Companies 2–5
-        const bestCompetitorRating = Math.max(...competitorRatings);
-
-        // ✅ Step 14 formula: Importance × (Our – BestCompetitor)
-        const diff = ourRating - bestCompetitorRating;
-        const totalScore = importance * diff;
-
-        let comment = '';
-        if (totalScore > 0) {
-            comment = 'Overall advantage vs best competitor (positive score).';
-        } else if (totalScore < 0) {
-            comment = 'Overall disadvantage – best competitor leads (negative score).';
-        } else {
-            comment = 'At parity with best competitor (no net advantage).';
-        }
-
-        competitiveResultCell.textContent =
-            `Score: ${totalScore.toFixed(2)} | Importance: ${importance.toFixed(2)}, ` +
-            `Our Rating: ${ourRating.toFixed(1)}/5, Best Competitor: ${bestCompetitorRating.toFixed(1)}/5, ` +
-            `Others: ${competitorRatings.join(', ')}. ` +
-            comment;
-    });
-
-    // Global summary under the table (this is already OK)
-    updateCompetitorSummary();
-}
-
+        // Global summary under the table (this is already OK)
+        updateCompetitorSummary();
+    }
 
     function buildTechCompetitorCell() {
         const td = document.createElement('td');
@@ -441,6 +466,42 @@ function updateCompetitiveResults() {
             </div>
         `;
         return td;
+    }
+
+    // 🔹 NEW: Pre-fill Technical Competitor Comparison for A–E (only if empty)
+    function initializeTechCompetitorDefaults() {
+        const techCells = Array.from(
+            document.querySelectorAll('#technical-competitor-comparison-row .tech-competitor-cell')
+        );
+
+        if (techCells.length === 0) return;
+
+        // Same mapping as header: index 0..5 = TC0..TC5
+        const techRatings = [
+            [5, 4, 3, 4, 2], // 0: Server response time
+            [4, 5, 3, 4, 2], // 1: Recommendation accuracy
+            [5, 3, 3, 4, 2], // 2: UI complexity / steps
+            [5, 4, 3, 4, 2], // 3: Payment encryption
+            [5, 4, 3, 4, 2], // 4: Payment security
+            [4, 3, 2, 5, 1]  // 5: Support automation (chatbot AI)
+        ];
+
+        techCells.forEach((cell, index) => {
+            const ratings = techRatings[index];
+            if (!ratings) return;
+
+            const selects = Array.from(cell.querySelectorAll('.tech-competitor-input'));
+
+            selects.forEach((sel, companyIndex) => {
+                // Don't override if user already chose something
+                if (sel.value && sel.value !== '') return;
+
+                const rating = ratings[companyIndex];
+                if (!rating) return;
+
+                sel.value = String(rating); // options are '1'..'5'
+            });
+        });
     }
 
     // UPDATED: Critical cell -> Yes/No text
@@ -599,7 +660,7 @@ function updateCompetitiveResults() {
         if (!criticalRow || !orgRow || !relRow) return;
 
         const criticalInputs = criticalRow.querySelectorAll('.critical-characteristic');
-               const difficultyInputs = orgRow.querySelectorAll('.difficulty');
+        const difficultyInputs = orgRow.querySelectorAll('.difficulty');
         const relInputs = relRow.querySelectorAll('.relative-importance');
 
         const charCount = thead.querySelectorAll('.characteristic-name').length || 0;
@@ -787,6 +848,7 @@ function updateCompetitiveResults() {
         updateImportanceValues();
         validateForm();
         ensureTechnicalComparisonRow();
+        initializeTechCompetitorDefaults();   // 🔹 Fill new tech column if within first 6
         ensureCriticalCharacteristicsRow();
         syncTopCharacteristicRow();    // 🔹 refresh Target Direction
         syncRoofRow();                 // 🔹 refresh roof
@@ -841,6 +903,7 @@ function updateCompetitiveResults() {
             updateImportanceValues();
             validateForm();
             ensureTechnicalComparisonRow();
+            initializeTechCompetitorDefaults();   // 🔹 keep defaults consistent after delete
             ensureCriticalCharacteristicsRow();
             syncTopCharacteristicRow();    // 🔹 refresh Target Direction
             syncRoofRow();                 // 🔹 refresh roof
