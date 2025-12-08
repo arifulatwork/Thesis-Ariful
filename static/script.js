@@ -21,6 +21,7 @@ document.addEventListener('DOMContentLoaded', function () {
         setupFormValidation();
         validateForm();
         updateCompetitiveResults();    // Initialize Highlight Competitive Advantages + summary
+        updateServiceImportance();     // 🔹 initialize Importance of Service (1–10)
     }
 
     function updateSelectedIcon(select) {
@@ -314,7 +315,8 @@ document.addEventListener('DOMContentLoaded', function () {
         });
 
         updateCriticalCharacteristics();
-        updateCompetitiveResults(); // Update Highlight Competitive Advantages when importance changes
+        updateCompetitiveResults();    // Update Highlight Competitive Advantages when importance changes
+        updateServiceImportance();     // 🔹 Recalculate Importance of Service (1–10)
     }
 
     // ===== GLOBAL COMPETITOR SUMMARY BELOW TABLE =====
@@ -456,6 +458,70 @@ document.addEventListener('DOMContentLoaded', function () {
 
         // Global summary under the table
         updateCompetitorSummary();
+    }
+
+    // 🔹 NEW: Auto-fill Importance of Service (1–10) per requirement
+    // Formula: raw = Importance × (1 + max(0, BestCompetitor - OurRating))
+    // Then normalized to 1..10 across all requirements
+    function updateServiceImportance() {
+        const requirementRows = Array.from(tbody.querySelectorAll('tr')).filter(row => !row.id);
+        if (requirementRows.length === 0) return;
+
+        const rawScores = [];
+
+        requirementRows.forEach(row => {
+            const importance = parseFloat(row.querySelector('.importance')?.value) || 0;
+            const competitorInputs = row.querySelectorAll('.competitor-column input');
+
+            const ratings = Array.from(competitorInputs).map(input => {
+                const v = parseFloat(input.value);
+                return isNaN(v) ? 0 : v;
+            });
+
+            if (importance <= 0 || ratings.length < 2) {
+                rawScores.push(0);
+                return;
+            }
+
+            const ourRating = ratings[0] || 0;          // Company 1 = Our Company
+            const competitorRatings = ratings.slice(1).filter(v => v > 0); // 2–5
+
+            if (ourRating <= 0 || competitorRatings.length === 0) {
+                rawScores.push(0);
+                return;
+            }
+
+            const bestCompetitor = Math.max(...competitorRatings);
+            const gapPos = Math.max(0, bestCompetitor - ourRating); // only if we are worse
+            const raw = importance * (1 + gapPos); // base on importance + penalty for gap
+
+            rawScores.push(raw);
+        });
+
+        const maxRaw = Math.max(...rawScores);
+        const minRaw = Math.min(...rawScores);
+
+        requirementRows.forEach((row, idx) => {
+            const serviceInput = row.querySelector('.characteristic-importance');
+            if (!serviceInput) return;
+
+            const raw = rawScores[idx];
+
+            let score;
+
+            if (!isFinite(raw) || raw <= 0 || maxRaw === minRaw) {
+                // Edge case: all equal or zero -> fallback to plain importance scaled to 1–10
+                const importance = parseFloat(row.querySelector('.importance')?.value) || 0;
+                // Assume original importance is 1–10
+                score = Math.max(1, Math.min(10, Math.round(importance)));
+            } else {
+                const norm = (raw - minRaw) / (maxRaw - minRaw); // 0..1
+                score = 1 + 9 * norm; // 1..10
+                score = Math.max(1, Math.min(10, Math.round(score)));
+            }
+
+            serviceInput.value = score; // 1–10 integer
+        });
     }
 
     function buildTechCompetitorCell() {
@@ -776,7 +842,7 @@ document.addEventListener('DOMContentLoaded', function () {
             ).join('')}
             <td class="importance-column">
                 <input type="number" class="characteristic-importance" value="0"
-                       min="0" max="100">
+                       min="1" max="10">
             </td>
             <td class="toggle-cell"></td>
             <td class="competitor-column"><input type="number" value="3" min="1" max="5"></td>
@@ -802,9 +868,11 @@ document.addEventListener('DOMContentLoaded', function () {
                 if (this.classList.contains('importance')) {
                     updateImportanceValues();
                     updateCompetitiveResults();
+                    updateServiceImportance();
                 }
                 if (this.closest('.competitor-column')) {
                     updateCompetitiveResults();
+                    updateServiceImportance();
                 }
             });
         });
@@ -813,6 +881,7 @@ document.addEventListener('DOMContentLoaded', function () {
         if (imp) imp.addEventListener('input', validateForm);
 
         updateCompetitiveResults();
+        updateServiceImportance();
     }
 
     function deleteRequirement() {
@@ -822,6 +891,7 @@ document.addEventListener('DOMContentLoaded', function () {
             updateImportanceValues();
             validateForm();
             updateCompetitiveResults();
+            updateServiceImportance();
         } else {
             alert('At least 3 requirements must remain.');
         }
@@ -893,6 +963,7 @@ document.addEventListener('DOMContentLoaded', function () {
         syncTopCharacteristicRow();    // refresh Target Direction
         syncRoofRow();                 // refresh roof
         updateCompetitiveResults();
+        updateServiceImportance();
     }
 
     function deleteCharacteristic() {
@@ -948,6 +1019,7 @@ document.addEventListener('DOMContentLoaded', function () {
             syncTopCharacteristicRow();    // refresh Target Direction
             syncRoofRow();                 // refresh roof
             updateCompetitiveResults();
+            updateServiceImportance();
         } else {
             alert('At least 3 characteristics must remain.');
         }
@@ -1018,7 +1090,7 @@ document.addEventListener('DOMContentLoaded', function () {
     function validateCharacteristicImportance() {
         let isValid = true;
         document.querySelectorAll('.characteristic-importance').forEach(input => {
-            if (!input.value.trim() || isNaN(input.value) || input.value < 0) {
+            if (!input.value.trim() || isNaN(input.value) || input.value < 1 || input.value > 10) {
                 isValid = false;
                 input.style.border = '1px solid red';
             } else {
@@ -1056,6 +1128,7 @@ document.addEventListener('DOMContentLoaded', function () {
                     ) {
                         updateImportanceValues();
                         updateCompetitiveResults();
+                        updateServiceImportance();
                     }
                 });
                 el.addEventListener('change', function () {
@@ -1071,6 +1144,7 @@ document.addEventListener('DOMContentLoaded', function () {
             input.addEventListener('input', function () {
                 validateForm();
                 updateCompetitiveResults();
+                updateServiceImportance();   // 🔹 reflect competitor changes in service importance
             });
         });
 
@@ -1078,6 +1152,7 @@ document.addEventListener('DOMContentLoaded', function () {
             input.addEventListener('input', function () {
                 updateImportanceValues();
                 updateCompetitiveResults();
+                // updateServiceImportance already called inside updateImportanceValues
             });
         });
 
@@ -1120,6 +1195,7 @@ document.addEventListener('DOMContentLoaded', function () {
                 criticalDescription:
                     document.querySelectorAll('.critical-characteristic')[index]?.value || ""
             }))
+
             .filter(char => char && char.name);
 
         // 🔹 Correlation Matrix (roof TRi–TRj)
