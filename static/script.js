@@ -6,24 +6,25 @@ document.addEventListener('DOMContentLoaded', function () {
     const submitBtn = document.getElementById('generate-plans');
     let competitorsVisible = true;
 
-    // Initialize the application
+    // ===================== INIT =====================
     function init() {
         initializeSelectBoxes();
         updateImportanceValues();
         setupCompetitorColumns();      // now a no-op, kept for safety
         ensureTechnicalComparisonRow();
-        initializeTechCompetitorDefaults();   // 🔹 pre-fill tech competitor A–E
+        initializeTechCompetitorDefaults();   // pre-fill tech competitor A–E
         ensureCriticalCharacteristicsRow();
         updateCriticalCharacteristics();
-        syncTopCharacteristicRow();    // 🔹 Target Direction row with smart defaults
-        syncRoofRow();                 // 🔹 Roof TRi–TRj correlation row (+ / 0 / -)
+        syncTopCharacteristicRow();    // Target Direction row with smart defaults
+        syncRoofRow();                 // Roof TRi–TRj correlation row (+ / 0 / -)
         setupEventListeners();
         setupFormValidation();
         validateForm();
-        updateCompetitiveResults();    // Initialize Highlight Competitive Advantages + summary
-        updateServiceImportance();     // 🔹 initialize Importance of Service (1–10)
+        updateCompetitiveResults();    // Highlight Competitive Advantages + summary
+        updateServiceImportance();     // Importance of Service (1–10 per requirement)
     }
 
+    // ===================== RELATIONSHIP ICONS =====================
     function updateSelectedIcon(select) {
         const selectedOption = select.options[select.selectedIndex];
         select.setAttribute('data-selected-icon', selectedOption.getAttribute('data-icon'));
@@ -40,38 +41,31 @@ document.addEventListener('DOMContentLoaded', function () {
         });
     }
 
-    // 🔹 Target Direction row above Technical Characteristics (0, ↑, ↓)
+    // ===================== TARGET DIRECTION ROW =====================
     function syncTopCharacteristicRow() {
         const topRow = thead.querySelector('.characteristic-top-row');
         if (!topRow) return;
 
         const nameInputs = Array.from(thead.querySelectorAll('.characteristic-name'));
         const charCount = nameInputs.length || 3;
-
-        // Save previous targetdirection values (if any) to keep them on re-render
         const prevValues = Array.from(topRow.querySelectorAll('.target-direction'))
             .map(sel => sel.value);
-
         const totalCompetitorCols = 6; // 5 companies + 1 Highlight column
 
-        // Rebuild the entire top row
         topRow.innerHTML = '';
 
-        // 1) First cell above "Customer Requirements" + "Importance"
         const labelTh = document.createElement('th');
         labelTh.colSpan = 2;
         labelTh.className = 'target-direction-header';
         labelTh.textContent = 'Target Direction';
         topRow.appendChild(labelTh);
 
-        // 2) One targetdirection select per characteristic column
         for (let i = 0; i < charCount; i++) {
             const th = document.createElement('th');
             th.className = 'target-direction-cell';
 
             const select = document.createElement('select');
             select.className = 'target-direction';
-
             select.innerHTML = `
                 <option value="0">0</option>
                 <option value="↑">↑</option>
@@ -79,33 +73,19 @@ document.addEventListener('DOMContentLoaded', function () {
             `;
 
             if (prevValues[i]) {
-                // Restore previous user-selected value
                 select.value = prevValues[i];
             } else {
-                // ✅ Default logic for first 6 technical characteristics
-                // 0: Server response time            -> ↓ (lower is better)
-                // 1: Recommendation accuracy         -> ↑
-                // 2: UI complexity / number of steps -> ↓
-                // 3: Payment encryption level        -> ↑
-                // 4: Payment security                -> ↑
-                // 5: Support automation (chatbot AI) -> ↑
+                // Domain default for first 6 technical characteristics
                 switch (i) {
-                    case 0:
-                        select.value = '↓';
-                        break;
-                    case 1:
-                        select.value = '↑';
-                        break;
-                    case 2:
-                        select.value = '↓';
-                        break;
+                    case 0: select.value = '↓'; break; // Server response time (lower better)
+                    case 1: select.value = '↑'; break; // Rec accuracy
+                    case 2: select.value = '↓'; break; // UI complexity / steps
                     case 3:
                     case 4:
                     case 5:
-                        select.value = '↑';
+                        select.value = '↑';  // Security, automation
                         break;
                     default:
-                        // Any additional characteristics default to neutral
                         select.value = '0';
                 }
             }
@@ -114,54 +94,25 @@ document.addEventListener('DOMContentLoaded', function () {
             topRow.appendChild(th);
         }
 
-        // 3) One empty cell above "Importance of Service"
         let th = document.createElement('th');
-        topRow.appendChild(th);
+        topRow.appendChild(th); // above Importance of Service
 
-        // 4) One empty cell above toggle column
         th = document.createElement('th');
-        topRow.appendChild(th);
+        topRow.appendChild(th); // above toggle
 
-        // 5) Six empty cells above Competitor + Highlight columns
         for (let i = 0; i < totalCompetitorCols; i++) {
             th = document.createElement('th');
             topRow.appendChild(th);
         }
     }
 
-    // 🔹 Default correlation matrix for first 6 Technical Characteristics
-    // Index mapping (0-based):
-    // TR1: Server response time
-    // TR2: Recommendation algorithm accuracy
-    // TR3: UI complexity / number of steps
-    // TR4: Payment encryption level
-    // TR5: Payment security
-    // TR6: Support automation (chatbot AI)
+    // ===================== ROOF CORRELATION MATRIX =====================
     const correlationDefaults = {
-        // TR1 with others
-        '0-1': '-', // Accurate algorithm can hurt latency
-        '0-2': '-', // More UI steps often worsen perceived speed
-        '0-3': '-', // Stronger encryption can add overhead
-        '0-4': '0', // Security policy vs raw latency mostly orthogonal
-        '0-5': '0', // Chatbot load not always strongly tied to core speed
-
-        // TR2 with others
-        '1-2': '0', // Accuracy vs steps mostly independent
-        '1-3': '+', // Better handling of data flows helps accuracy
-        '1-4': '+', // Stronger data protection supports trustworthy models
-        '1-5': '+', // Good models and good AI support go together
-
-        // TR3 with others
-        '2-3': '0', // UI steps vs encryption mostly orthogonal
-        '2-4': '0',
-        '2-5': '0',
-
-        // TR4 with others
-        '3-4': '+', // Encryption and security reinforce each other
-        '3-5': '0', // Encryption vs chatbot mostly independent
-
-        // TR5 with others
-        '4-5': '+', // Security and automation help each other
+        '0-1': '-', '0-2': '-', '0-3': '-', '0-4': '0', '0-5': '0',
+        '1-2': '0', '1-3': '+', '1-4': '+', '1-5': '+',
+        '2-3': '0', '2-4': '0', '2-5': '0',
+        '3-4': '+', '3-5': '0',
+        '4-5': '+'
     };
 
     function getCorrelationDefault(i, j) {
@@ -171,16 +122,14 @@ document.addEventListener('DOMContentLoaded', function () {
         return correlationDefaults[key] || '';
     }
 
-    // 🔹 Roof row with TRi–TRj pairwise correlations
     function syncRoofRow() {
         const roofRow = thead.querySelector('.roof-row');
         if (!roofRow) return;
 
         const nameInputs = Array.from(thead.querySelectorAll('.characteristic-name'));
         const charCount = nameInputs.length || 3;
-        const totalCompetitorCols = 6; // 5 companies + highlight
+        const totalCompetitorCols = 6;
 
-        // Save previous correlation values so they survive re-renders
         const prevMap = {};
         roofRow.querySelectorAll('.roof-corr-select').forEach(sel => {
             const i = sel.getAttribute('data-i');
@@ -190,31 +139,25 @@ document.addEventListener('DOMContentLoaded', function () {
             }
         });
 
-        // Rebuild the roof row
         roofRow.innerHTML = '';
 
-        // 1) First two cells (Customer Req + Importance)
         let th = document.createElement('th');
         roofRow.appendChild(th);
         th = document.createElement('th');
         roofRow.appendChild(th);
 
-        // 2) One roof cell per characteristic column (TRj)
         for (let j = 0; j < charCount; j++) {
             const roofTh = document.createElement('th');
             roofTh.className = 'roof-cell';
 
-            // For the first characteristic (TR1), there is no previous TR to compare with
             if (j === 0) {
                 roofRow.appendChild(roofTh);
                 continue;
             }
 
-            // Container for all TRi–TRj rows inside this cell
             const group = document.createElement('div');
             group.className = 'roof-corr-group';
 
-            // For each i < j, create a small "TRi [select]" row
             for (let i = 0; i < j; i++) {
                 const row = document.createElement('div');
                 row.className = 'roof-corr-row';
@@ -236,12 +179,9 @@ document.addEventListener('DOMContentLoaded', function () {
                 `;
 
                 const key = `${i}-${j}`;
-
                 if (prevMap[key]) {
-                    // keep whatever user selected before
                     select.value = prevMap[key];
                 } else {
-                    // first time: use our domain-based default if we have one
                     const def = getCorrelationDefault(i, j);
                     if (def) select.value = def;
                 }
@@ -255,22 +195,19 @@ document.addEventListener('DOMContentLoaded', function () {
             roofRow.appendChild(roofTh);
         }
 
-        // 3) Empty cell above "Importance of Service"
         th = document.createElement('th');
-        roofRow.appendChild(th);
+        roofRow.appendChild(th); // above Importance of Service
 
-        // 4) Empty cell above toggle
         th = document.createElement('th');
-        roofRow.appendChild(th);
+        roofRow.appendChild(th); // above toggle
 
-        // 5) Empty cells above competitor columns
         for (let i = 0; i < totalCompetitorCols; i++) {
             th = document.createElement('th');
             roofRow.appendChild(th);
         }
     }
 
-    // Toggle competitor columns visibility
+    // ===================== TOGGLE COMPETITOR COLUMNS =====================
     function toggleCompetitorColumns() {
         competitorsVisible = !competitorsVisible;
         const toggleBtn = document.getElementById('toggle-competitors');
@@ -283,6 +220,7 @@ document.addEventListener('DOMContentLoaded', function () {
         });
     }
 
+    // ===================== IMPORTANCE CALCULATIONS (ABS & REL) =====================
     function updateImportanceValues() {
         const requirementRows = Array.from(tbody.querySelectorAll('tr')).filter(row => !row.id);
         const absImpRow = document.getElementById('absolute-importance-row');
@@ -315,12 +253,11 @@ document.addEventListener('DOMContentLoaded', function () {
         });
 
         updateCriticalCharacteristics();
-        updateCompetitiveResults();    // Update Highlight Competitive Advantages when importance changes
-        updateServiceImportance();     // 🔹 Recalculate Importance of Service (1–10)
+        updateCompetitiveResults();
+        updateServiceImportance();
     }
 
-    // ===== GLOBAL COMPETITOR SUMMARY BELOW TABLE =====
-
+    // ===================== GLOBAL COMPETITOR SUMMARY =====================
     function ensureCompetitorSummaryContainer() {
         let summary = document.getElementById('competitor-summary');
         if (!summary) {
@@ -332,26 +269,15 @@ document.addEventListener('DOMContentLoaded', function () {
         return summary;
     }
 
-    // Compute Σ(Importance × OurRating) vs Σ(Importance × BestCompetitorRating)
-    function updateCompetitorSummary() {
-        const summary = ensureCompetitorSummaryContainer();
-
+    function computeCompetitorSummaryForPrompt() {
         const requirementRows = Array.from(tbody.querySelectorAll('tr'))
-            .filter(row => !row.id); // only requirement rows
-
-        if (requirementRows.length === 0) {
-            summary.innerHTML = 'No competitor data available.';
-            return;
-        }
+            .filter(row => !row.id);
 
         let totalOur = 0;
         let totalBest = 0;
 
         requirementRows.forEach(row => {
-            const importance = parseFloat(
-                row.querySelector('.importance')?.value
-            ) || 0;
-
+            const importance = parseFloat(row.querySelector('.importance')?.value) || 0;
             if (importance <= 0) return;
 
             const competitorInputs = row.querySelectorAll('.competitor-column input');
@@ -362,45 +288,54 @@ document.addEventListener('DOMContentLoaded', function () {
 
             if (ratings.length === 0) return;
 
-            const ourRating = ratings[0] || 0;            // Company 1 = Us
-            const competitorRatings = ratings.slice(1);   // Company 2–5
+            const ourRating = ratings[0] || 0;
+            const competitorRatings = ratings.slice(1);
             const bestCompetitorRating = competitorRatings.length
                 ? Math.max(...competitorRatings)
                 : 0;
 
-            const ourWeighted = importance * ourRating;
-            const bestWeighted = importance * bestCompetitorRating;
-
-            totalOur += ourWeighted;
-            totalBest += bestWeighted;
+            totalOur += importance * ourRating;
+            totalBest += importance * bestCompetitorRating;
         });
-
-        if (totalOur === 0 && totalBest === 0) {
-            summary.innerHTML = 'Not enough valid competitor data for summary.';
-            return;
-        }
 
         let verdict = '';
         const eps = 1e-6;
 
-        if (totalOur > totalBest + eps) {
-            verdict = 'Verdict: Company 1 (Our Company) is overall BEST based on weighted competitor analysis.';
+        if (totalOur === 0 && totalBest === 0) {
+            verdict = 'Not enough valid competitor data.';
+        } else if (totalOur > totalBest + eps) {
+            verdict = 'Our company is overall BEST based on weighted competitor analysis.';
         } else if (Math.abs(totalOur - totalBest) <= eps) {
-            verdict = 'Verdict: Company 1 (Our Company) is overall at PARITY with the best competitor.';
+            verdict = 'Our company is overall at PARITY with the best competitor.';
         } else {
-            verdict = 'Verdict: Company 1 (Our Company) is NOT the best overall – competitors lead in weighted score.';
+            verdict = 'Our company is NOT the best overall – competitors lead in weighted score.';
+        }
+
+        return {
+            totalOurScore: totalOur,
+            totalBestCompetitorScore: totalBest,
+            verdict
+        };
+    }
+
+    function updateCompetitorSummary() {
+        const summary = ensureCompetitorSummaryContainer();
+        const stats = computeCompetitorSummaryForPrompt();
+
+        if (stats.totalOurScore === 0 && stats.totalBestCompetitorScore === 0) {
+            summary.innerHTML = 'Not enough valid competitor data for summary.';
+            return;
         }
 
         summary.innerHTML = `
             <strong>Competitor Analysis (weighted by customer requirement importance)</strong><br>
-            Total Our Company (Σ Importance × Company 1): <strong>${totalOur.toFixed(2)}</strong><br>
-            Total Best Competitor (Σ Importance × Best Competitor): <strong>${totalBest.toFixed(2)}</strong><br>
-            ${verdict}
+            Total Our Company (Σ Importance × Company 1): <strong>${stats.totalOurScore.toFixed(2)}</strong><br>
+            Total Best Competitor (Σ Importance × Best Competitor): <strong>${stats.totalBestCompetitorScore.toFixed(2)}</strong><br>
+            ${stats.verdict}
         `;
     }
 
-    // NEW: Update Highlight Competitive Advantage using:
-    // Score = Importance × (OurCompany - BestCompetitor)
+    // ===================== PER-REQUIREMENT COMPETITIVE RESULT (STEP 14) =====================
     function updateCompetitiveResults() {
         const requirementRows = Array.from(tbody.querySelectorAll('tr')).filter(row => !row.id);
 
@@ -421,7 +356,7 @@ document.addEventListener('DOMContentLoaded', function () {
             }
 
             const ourRating = ratings[0]; // Company 1 = Our Company
-            const competitorRatings = ratings.slice(1).filter(v => v > 0); // Companies 2–5
+            const competitorRatings = ratings.slice(1).filter(v => v > 0);
 
             if (ourRating <= 0) {
                 competitiveResultCell.textContent = 'No valid score for Our Company';
@@ -433,10 +368,7 @@ document.addEventListener('DOMContentLoaded', function () {
                 return;
             }
 
-            // ✅ Best competitor among Companies 2–5
             const bestCompetitorRating = Math.max(...competitorRatings);
-
-            // ✅ Step 14 formula: Importance × (Our – BestCompetitor)
             const diff = ourRating - bestCompetitorRating;
             const totalScore = importance * diff;
 
@@ -456,13 +388,10 @@ document.addEventListener('DOMContentLoaded', function () {
                 comment;
         });
 
-        // Global summary under the table
         updateCompetitorSummary();
     }
 
-    // 🔹 NEW: Auto-fill Importance of Service (1–10) per requirement
-    // Formula: raw = Importance × (1 + max(0, BestCompetitor - OurRating))
-    // Then normalized to 1..10 across all requirements
+    // ===================== IMPORTANCE OF SERVICE (1–10) =====================
     function updateServiceImportance() {
         const requirementRows = Array.from(tbody.querySelectorAll('tr')).filter(row => !row.id);
         if (requirementRows.length === 0) return;
@@ -483,8 +412,8 @@ document.addEventListener('DOMContentLoaded', function () {
                 return;
             }
 
-            const ourRating = ratings[0] || 0;          // Company 1 = Our Company
-            const competitorRatings = ratings.slice(1).filter(v => v > 0); // 2–5
+            const ourRating = ratings[0] || 0;
+            const competitorRatings = ratings.slice(1).filter(v => v > 0);
 
             if (ourRating <= 0 || competitorRatings.length === 0) {
                 rawScores.push(0);
@@ -493,7 +422,7 @@ document.addEventListener('DOMContentLoaded', function () {
 
             const bestCompetitor = Math.max(...competitorRatings);
             const gapPos = Math.max(0, bestCompetitor - ourRating); // only if we are worse
-            const raw = importance * (1 + gapPos); // base on importance + penalty for gap
+            const raw = importance * (1 + gapPos);
 
             rawScores.push(raw);
         });
@@ -506,24 +435,22 @@ document.addEventListener('DOMContentLoaded', function () {
             if (!serviceInput) return;
 
             const raw = rawScores[idx];
-
             let score;
 
             if (!isFinite(raw) || raw <= 0 || maxRaw === minRaw) {
-                // Edge case: all equal or zero -> fallback to plain importance scaled to 1–10
                 const importance = parseFloat(row.querySelector('.importance')?.value) || 0;
-                // Assume original importance is 1–10
                 score = Math.max(1, Math.min(10, Math.round(importance)));
             } else {
-                const norm = (raw - minRaw) / (maxRaw - minRaw); // 0..1
-                score = 1 + 9 * norm; // 1..10
+                const norm = (raw - minRaw) / (maxRaw - minRaw);
+                score = 1 + 9 * norm;
                 score = Math.max(1, Math.min(10, Math.round(score)));
             }
 
-            serviceInput.value = score; // 1–10 integer
+            serviceInput.value = score;
         });
     }
 
+    // ===================== TECH COMPETITOR + CRITICAL ROWS =====================
     function buildTechCompetitorCell() {
         const td = document.createElement('td');
         td.className = 'tech-competitor-cell';
@@ -574,22 +501,19 @@ document.addEventListener('DOMContentLoaded', function () {
         return td;
     }
 
-    // 🔹 Pre-fill Technical Competitor Comparison for A–E (only if empty)
     function initializeTechCompetitorDefaults() {
         const techCells = Array.from(
             document.querySelectorAll('#technical-competitor-comparison-row .tech-competitor-cell')
         );
-
         if (techCells.length === 0) return;
 
-        // Same mapping as header: index 0..5 = TC0..TC5
         const techRatings = [
-            [5, 4, 3, 4, 2], // 0: Server response time
-            [4, 5, 3, 4, 2], // 1: Recommendation accuracy
-            [5, 3, 3, 4, 2], // 2: UI complexity / steps
-            [5, 4, 3, 4, 2], // 3: Payment encryption
-            [5, 4, 3, 4, 2], // 4: Payment security
-            [4, 3, 2, 5, 1]  // 5: Support automation (chatbot AI)
+            [5, 4, 3, 4, 2],
+            [4, 5, 3, 4, 2],
+            [5, 3, 3, 4, 2],
+            [5, 4, 3, 4, 2],
+            [5, 4, 3, 4, 2],
+            [4, 3, 2, 5, 1]
         ];
 
         techCells.forEach((cell, index) => {
@@ -599,18 +523,16 @@ document.addEventListener('DOMContentLoaded', function () {
             const selects = Array.from(cell.querySelectorAll('.tech-competitor-input'));
 
             selects.forEach((sel, companyIndex) => {
-                // Don't override if user already chose something
                 if (sel.value && sel.value !== '') return;
 
                 const rating = ratings[companyIndex];
                 if (!rating) return;
 
-                sel.value = String(rating); // options are '1'..'5'
+                sel.value = String(rating);
             });
         });
     }
 
-    // Critical cell -> Yes/No text
     function buildCriticalCharacteristicCell() {
         const td = document.createElement('td');
         td.innerHTML = `<input type="text" class="critical-characteristic" value="No" readonly>`;
@@ -622,7 +544,6 @@ document.addEventListener('DOMContentLoaded', function () {
         if (!relRow) return;
 
         let techRow = document.getElementById('technical-competitor-comparison-row');
-
         const charCount = thead.querySelectorAll('.characteristic-name').length || 3;
 
         if (!techRow) {
@@ -691,7 +612,6 @@ document.addEventListener('DOMContentLoaded', function () {
         if (!techRow) return;
 
         let criticalRow = document.getElementById('critical-characteristics-row');
-
         const charCount = thead.querySelectorAll('.characteristic-name').length || 3;
 
         if (!criticalRow) {
@@ -757,7 +677,6 @@ document.addEventListener('DOMContentLoaded', function () {
         updateCriticalCharacteristics();
     }
 
-    // NEW: Critical logic = AND of 3 "High" checks
     function updateCriticalCharacteristics() {
         const criticalRow = document.getElementById('critical-characteristics-row');
         const orgRow = document.getElementById('organization-difficulty-row');
@@ -768,14 +687,11 @@ document.addEventListener('DOMContentLoaded', function () {
         const criticalInputs = criticalRow.querySelectorAll('.critical-characteristic');
         const difficultyInputs = orgRow.querySelectorAll('.difficulty');
         const relInputs = relRow.querySelectorAll('.relative-importance');
-
         const charCount = thead.querySelectorAll('.characteristic-name').length || 0;
 
-        // 1) Sum / count customer importance per characteristic based on relationships
         const sumImportancePerChar = new Array(charCount).fill(0);
         const countPerChar = new Array(charCount).fill(0);
 
-        // requirement rows = rows without id
         const requirementRows = Array.from(tbody.querySelectorAll('tr')).filter(row => !row.id);
 
         requirementRows.forEach(row => {
@@ -787,7 +703,6 @@ document.addEventListener('DOMContentLoaded', function () {
             relSelects.forEach((select, index) => {
                 if (index >= charCount) return;
                 const relVal = parseFloat(select.value) || 0;
-                // Only count requirements that are linked (relationship > 0)
                 if (relVal > 0) {
                     sumImportancePerChar[index] += importance;
                     countPerChar[index] += 1;
@@ -795,7 +710,6 @@ document.addEventListener('DOMContentLoaded', function () {
             });
         });
 
-        // 2) For each characteristic, decide Yes/No
         for (let j = 0; j < charCount; j++) {
             const ccInput = criticalInputs[j];
             const relInput = relInputs[j];
@@ -806,12 +720,12 @@ document.addEventListener('DOMContentLoaded', function () {
             const avgCustomerImportance =
                 countPerChar[j] ? (sumImportancePerChar[j] / countPerChar[j]) : 0;
 
-            const relValue = parseFloat(relInput.value) || 0;   // Relative Importance (%)
-            const diffValue = parseFloat(diffInput.value) || 0; // Organization Difficulty
+            const relValue = parseFloat(relInput.value) || 0;
+            const diffValue = parseFloat(diffInput.value) || 0;
 
-            const isHighRelImportance = relValue >= 30;                 // ≥ 30%
-            const isHighCustomerImportance = avgCustomerImportance >= 7;// ≥ 7
-            const isHighDifficulty = diffValue >= 7;                    // ≥ 7
+            const isHighRelImportance = relValue >= 30;
+            const isHighCustomerImportance = avgCustomerImportance >= 7;
+            const isHighDifficulty = diffValue >= 7;
 
             const isCritical =
                 isHighRelImportance &&
@@ -822,7 +736,7 @@ document.addEventListener('DOMContentLoaded', function () {
         }
     }
 
-    // Requirement rows
+    // ===================== REQUIREMENT ROWS (ADD/DELETE) =====================
     function addRequirement() {
         const newRow = document.createElement('tr');
         const rowCount = Array.from(tbody.querySelectorAll('tr')).filter(r => !r.id).length;
@@ -897,18 +811,16 @@ document.addEventListener('DOMContentLoaded', function () {
         }
     }
 
-    // Characteristics
+    // ===================== CHARACTERISTICS (ADD/DELETE) =====================
     function addCharacteristic() {
-        const headerRow = thead.querySelector('tr:last-child'); // row with .characteristic-name
+        const headerRow = thead.querySelector('tr:last-child');
 
         const newHeader = document.createElement('th');
         newHeader.innerHTML = `<input type="text" class="characteristic-name" value="Characteristic">`;
 
-        // insert before first competitor-column header
         const firstCompetitorHeader = headerRow.querySelector('.competitor-column');
         headerRow.insertBefore(newHeader, firstCompetitorHeader);
 
-        // Fix: techCharHeader is now in the THIRD header row (because of roof + target direction)
         const techCharHeader = thead.querySelector('tr:nth-child(3) th[colspan]');
         if (techCharHeader) {
             techCharHeader.setAttribute(
@@ -958,19 +870,18 @@ document.addEventListener('DOMContentLoaded', function () {
         updateImportanceValues();
         validateForm();
         ensureTechnicalComparisonRow();
-        initializeTechCompetitorDefaults();   // Fill new tech column if within first 6
+        initializeTechCompetitorDefaults();
         ensureCriticalCharacteristicsRow();
-        syncTopCharacteristicRow();    // refresh Target Direction
-        syncRoofRow();                 // refresh roof
+        syncTopCharacteristicRow();
+        syncRoofRow();
         updateCompetitiveResults();
         updateServiceImportance();
     }
 
     function deleteCharacteristic() {
-        const headerRow = thead.querySelector('tr:last-child'); // row with .characteristic-name
-
-        // count characteristic headers
+        const headerRow = thead.querySelector('tr:last-child');
         const charHeaders = headerRow.querySelectorAll('.characteristic-name');
+
         if (charHeaders.length > 3) {
             const firstCompetitorHeader = headerRow.querySelector('.competitor-column');
             const candidate = firstCompetitorHeader.previousElementSibling;
@@ -978,7 +889,6 @@ document.addEventListener('DOMContentLoaded', function () {
                 headerRow.removeChild(candidate);
             }
 
-            // Fix: techCharHeader is now in THIRD header row
             const techCharHeader = thead.querySelector('tr:nth-child(3) th[colspan]');
             if (techCharHeader) {
                 techCharHeader.setAttribute(
@@ -1014,10 +924,10 @@ document.addEventListener('DOMContentLoaded', function () {
             updateImportanceValues();
             validateForm();
             ensureTechnicalComparisonRow();
-            initializeTechCompetitorDefaults();   // keep defaults consistent after delete
+            initializeTechCompetitorDefaults();
             ensureCriticalCharacteristicsRow();
-            syncTopCharacteristicRow();    // refresh Target Direction
-            syncRoofRow();                 // refresh roof
+            syncTopCharacteristicRow();
+            syncRoofRow();
             updateCompetitiveResults();
             updateServiceImportance();
         } else {
@@ -1025,12 +935,11 @@ document.addEventListener('DOMContentLoaded', function () {
         }
     }
 
-    // Competitor columns – now a no-op (HTML already has headers & result column)
     function setupCompetitorColumns() {
-        // Intentionally left empty
+        // Intentionally left empty (HTML defines columns)
     }
 
-    // Form validation
+    // ===================== FORM VALIDATION =====================
     function validateForm() {
         const requirementsValid = validateRequirements();
         const characteristicsValid = validateCharacteristics();
@@ -1100,7 +1009,7 @@ document.addEventListener('DOMContentLoaded', function () {
         return isValid;
     }
 
-    // Event Listeners
+    // ===================== EVENT LISTENERS =====================
     function setupEventListeners() {
         document.getElementById('add-requirement').addEventListener('click', addRequirement);
         document.getElementById('delete-requirement').addEventListener('click', deleteRequirement);
@@ -1117,7 +1026,6 @@ document.addEventListener('DOMContentLoaded', function () {
                     validateForm();
 
                     if (this.classList.contains('characteristic-name')) {
-                        // sync the top row when a characteristic name changes
                         syncTopCharacteristicRow();
                         syncRoofRow();
                     }
@@ -1144,7 +1052,7 @@ document.addEventListener('DOMContentLoaded', function () {
             input.addEventListener('input', function () {
                 validateForm();
                 updateCompetitiveResults();
-                updateServiceImportance();   // 🔹 reflect competitor changes in service importance
+                updateServiceImportance();
             });
         });
 
@@ -1152,7 +1060,6 @@ document.addEventListener('DOMContentLoaded', function () {
             input.addEventListener('input', function () {
                 updateImportanceValues();
                 updateCompetitiveResults();
-                // updateServiceImportance already called inside updateImportanceValues
             });
         });
 
@@ -1164,41 +1071,50 @@ document.addEventListener('DOMContentLoaded', function () {
         });
     }
 
-    // AI PROMPT BUILDER
+    // ===================== AI PROMPT (PMP ONLY) =====================
     function generateAIPrompt() {
-        const requirements = Array.from(
+        // Requirements: include service importance + competitive result
+        const requirementNames = Array.from(
             document.querySelectorAll('.requirement-name')
-        )
+        );
+        const importanceInputs = document.querySelectorAll('.importance');
+        const relativeReqImp = document.querySelectorAll('.relative-importance');
+        const serviceImpInputs = document.querySelectorAll('.characteristic-importance');
+        const competitiveTexts = document.querySelectorAll('.competitive-result-text');
+
+        const requirements = requirementNames
             .map((input, index) => ({
                 name: input.value.trim(),
-                importance: document.querySelectorAll('.importance')[index].value,
+                importance: importanceInputs[index]?.value || "0",
                 relativeImportance:
-                    document.querySelectorAll('.relative-importance')[index]?.value || "0",
+                    relativeReqImp[index]?.value || "0",
+                serviceImportanceScore:
+                    serviceImpInputs[index]?.value || "0",
                 competitiveResult:
-                    document.querySelectorAll('.competitive-result-text')[index]?.textContent ||
-                    "No analysis"
+                    competitiveTexts[index]?.textContent || "No analysis"
             }))
             .filter(req => req.name);
 
-        const characteristics = Array.from(
-            document.querySelectorAll('.characteristic-name')
-        )
-            .map((input, index) => ([...document.querySelectorAll('.characteristic-name')] && {
-                name: input.value.trim(),
-                difficulty: document.querySelectorAll('.difficulty')[index]?.value || "1",
-                absoluteImportance:
-                    document.querySelectorAll('.absolute-importance')[index]?.value || "0",
-                relativeImportance:
-                    document.querySelectorAll('.relative-importance')[index]?.value || "0",
-                manualImportance:
-                    document.querySelectorAll('.characteristic-importance')[index]?.value || "0",
-                criticalDescription:
-                    document.querySelectorAll('.critical-characteristic')[index]?.value || ""
-            }))
+        // Technical characteristics
+        const charNameInputs = document.querySelectorAll('.characteristic-name');
+        const difficultyInputs = document.querySelectorAll('.difficulty');
+        const absImpInputs = document.querySelectorAll('.absolute-importance');
+        const relImpInputs = document.querySelectorAll('.relative-importance');
+        const criticalInputs = document.querySelectorAll('.critical-characteristic');
 
+        const characteristics = Array.from(charNameInputs)
+            .map((input, index) => ({
+                name: input.value.trim(),
+                difficulty: difficultyInputs[index]?.value || "1",
+                absoluteImportance: absImpInputs[index]?.value || "0",
+                relativeImportance: relImpInputs[index]?.value || "0",
+                // use relative importance as "manual" ordering weight
+                manualImportance: relImpInputs[index]?.value || "0",
+                criticalDescription: criticalInputs[index]?.value || ""
+            }))
             .filter(char => char && char.name);
 
-        // 🔹 Correlation Matrix (roof TRi–TRj)
+        // Roof correlations
         const charNames = Array.from(
             document.querySelectorAll('.characteristic-name')
         ).map(inp => inp.value.trim());
@@ -1214,89 +1130,105 @@ document.addEventListener('DOMContentLoaded', function () {
                     toIndex: j,
                     from: charNames[i] || `TR${i + 1}`,
                     to: charNames[j] || `TR${j + 1}`,
-                    correlation: v   // '+', '0', '-'
+                    correlation: v
                 });
             }
         });
 
-        requirements.sort(
-            (a, b) => parseFloat(b.importance) - parseFloat(a.importance)
+        const competitorSummary = computeCompetitorSummaryForPrompt();
+
+        // Sort requirements by serviceImportance first, then raw importance
+        requirements.sort((a, b) =>
+            (parseFloat(b.serviceImportanceScore) || 0) - (parseFloat(a.serviceImportanceScore) || 0)
+            || (parseFloat(b.importance) || 0) - (parseFloat(a.importance) || 0)
         );
+
+        // Sort characteristics by relativeImportance
         characteristics.sort(
-            (a, b) => parseFloat(b.manualImportance) - parseFloat(a.manualImportance)
+            (a, b) => parseFloat(b.relativeImportance) - parseFloat(a.relativeImportance)
         );
 
         return `
-        You are tasked to generate a comprehensive, ISO/IEEE-standard Project Management Documentation based on the following House of Quality (HoQ) analysis.
+You are an expert software project manager and requirements engineer.
 
-        The following JSON-like data is available:
+You are given a fully evaluated extended 15-step House of Quality (HoQ) for a software/digital product project.
+From this HoQ data, you must generate ONLY a **complete Project Management Plan (PMP)** in strict ISO/IEEE style.
 
-        - Customer Requirements (sorted by importance):
-        ${JSON.stringify(requirements, null, 2)}
+The HoQ-derived structured data is:
 
-        - Technical Characteristics (sorted by manualImportance):
-        ${JSON.stringify(characteristics, null, 2)}
+- Customer Requirements (sorted by priority and service importance):
+${JSON.stringify(requirements, null, 2)}
 
-        - Technical Correlation Matrix (roof TRi–TRj pairs):
-        ${JSON.stringify(correlations, null, 2)}
+- Technical Characteristics (sorted by relative importance and criticality):
+${JSON.stringify(characteristics, null, 2)}
 
-        You MUST structure your response exactly as follows:
+- Technical Correlation Matrix (roof TRi–TRj pairs, '+', '0', '-'):
+${JSON.stringify(correlations, null, 2)}
 
-        ## 1. Project Management Plan
+- Global Competitor Summary (weighted by requirement importance):
+${JSON.stringify(competitorSummary, null, 2)}
 
-        ### 1. Overview
-        1.1. Project Summary  
-        1.2. Project Deliverables  
-        1.3. Evaluation of the Plan  
-        1.4. References  
-        1.5. Definition  
+Interpretation hints:
+- High "importance" and "serviceImportanceScore" = very critical customer requirement.
+- High "relativeImportance" of a technical characteristic = strong leverage on customer value.
+- "criticalDescription" = "Yes" means this technical characteristic is critical (high importance, high difficulty).
+- "competitiveResult" per requirement tells where our product is strong/weak vs best competitor.
+- "totalOurScore" vs "totalBestCompetitorScore" shows overall competitive position.
 
-        ### 2. Project Organization
-        2.1. Process Model  
-        2.2. Project Organization  
-        2.3. Organizational Boundaries and Interfaces  
-        2.4. Project Responsible Persons  
+Your task:
+Using ONLY this HoQ structure as the decision backbone, produce a **single, coherent Project Management Plan** with the exact structure and numbering below.
 
-        ### 3. Management Process
-        3.1. Management Scope and Priorities  
-        3.2. Supposition, Dependencies and Restrictions  
-        3.3. Risk Management  
-        3.4. Monitoring and Control Mechanisms  
-        3.5. Staffing Plan  
+You MUST output text in this exact structure (no extra top-level sections):
 
-        ### 4. Technical Process
-        4.1. Methods, Tools and Techniques  
-        4.2. Software Documentation  
-        4.3. Project Support Functions  
-            - 4.3.1. Software Configuration Management (SCM)
-            - 4.3.2. Software Quality Assurance
-            - 4.3.3. Software Testing  
+## 1. Project Management Plan
 
-        ## 5. Work Packages, Timetable, and Budget
-        5.1. Work Packages and Budget  
-        5.2. Dependencies  
-        5.3. Resource Requirements  
-        5.4. Budget and Allocation of Resources  
-        5.5. Timetable  
+### 1. Overview
+1.1. Project Summary  
+1.2. Project Deliverables  
+1.3. Evaluation of the Plan  
+1.4. References  
+1.5. Definition  
 
-        ## 2. Scope Plan
-        - Scope Inclusions
-        - Scope Exclusions
+### 2. Project Organization
+2.1. Process Model  
+2.2. Project Organization  
+2.3. Organizational Boundaries and Interfaces  
+2.4. Project Responsible Persons  
 
-        ## 3. User Stories
-        - Top 3 User Stories with Acceptance Criteria
+### 3. Management Process
+3.1. Management Scope and Priorities  
+3.2. Supposition, Dependencies and Restrictions  
+3.3. Risk Management  
+3.4. Monitoring and Control Mechanisms  
+3.5. Staffing Plan  
 
-        ## 4. Risk Management Plan
-        - Top 3 Identified Risks
-        - Mitigation Strategies
+### 4. Technical Process
+4.1. Methods, Tools and Techniques  
+4.2. Software Documentation  
+4.3. Project Support Functions  
+    - 4.3.1. Software Configuration Management (SCM)
+    - 4.3.2. Software Quality Assurance
+    - 4.3.3. Software Testing  
 
-        Strict rules:
-        - Keep exact numbering
-        - No extra sections
-        - Professional, concise, complete
-        `;
+### 5. Work Packages, Timetable, and Budget
+5.1. Work Packages and Budget  
+5.2. Dependencies  
+5.3. Resource Requirements  
+5.4. Budget and Allocation of Resources  
+5.5. Timetable  
+
+STRICT RULES:
+- Do NOT add Scope Plan, User Stories, or Risk Management Plan as separate documents. Everything stays inside this Project Management Plan.
+- Keep the headings and numbering EXACTLY as written above.
+- Under each heading/subheading, write clear, professional, and concise text that is consistent with the HoQ data:
+  - Use the most important requirements as the drivers of scope, priorities, and work packages.
+  - Reflect critical technical characteristics in risk management, methods/tools, and budget.
+  - Use competitor weaknesses/strengths to justify priorities and quality targets.
+- Do NOT invent unrelated features; always tie decisions back to the HoQ-style priorities.
+`;
     }
 
+    // ===================== AI CALL + RESULT RENDERING =====================
     async function generatePlans() {
         const prompt = generateAIPrompt();
         submitBtn.disabled = true;
@@ -1316,10 +1248,10 @@ document.addEventListener('DOMContentLoaded', function () {
 
             if (!response.ok) throw new Error("API request failed");
             const data = await response.json();
-            displayAIResults(data.choices?.[0]?.message?.content);
+            displayAIResults(data.choices?.[0]?.message?.content || "");
         } catch (error) {
             console.error("Error:", error);
-            alert("Failed to generate plans. Try again.");
+            alert("Failed to generate Project Management Plan. Try again.");
         } finally {
             submitBtn.disabled = false;
             submitBtn.textContent = "Submit";
@@ -1327,8 +1259,6 @@ document.addEventListener('DOMContentLoaded', function () {
     }
 
     function displayAIResults(aiText) {
-        const sections = aiText.split(/(?=^##\s*\d\.\s+)/gm);
-
         function formatContent(text) {
             text = text.replace(/^##\s*(\d\.\s+.*)$/gm, '<h2>$1</h2>');
             text = text.replace(/^###\s*(.*)$/gm, '<h3>$1</h3>');
@@ -1336,22 +1266,17 @@ document.addEventListener('DOMContentLoaded', function () {
             return text;
         }
 
-        if (sections.length < 4) {
-            document.querySelectorAll('.tab-content .result-text')
-                .forEach(tab => (tab.innerHTML = formatContent(aiText)));
-        } else {
-            document.querySelector('#pmp .result-text').innerHTML =
-                formatContent(sections[0] || '');
-            document.querySelector('#scope .result-text').innerHTML =
-                formatContent(sections[1] || '');
-            document.querySelector('#stories .result-text').innerHTML =
-                formatContent(sections[2] || '');
-            document.querySelector('#risk .result-text').innerHTML =
-                formatContent(sections[3] || '');
-        }
+        // We now ONLY care about the Project Management Plan tab
+        document.querySelector('#pmp .result-text').innerHTML = formatContent(aiText || "");
+
+        // Optional: clear other tabs
+        document.querySelector('#scope .result-text').innerHTML = "[Not used in this version – PMP only is generated.]";
+        document.querySelector('#stories .result-text').innerHTML = "[Not used in this version – PMP only is generated.]";
+        document.querySelector('#risk .result-text').innerHTML = "[Not used in this version – PMP only is generated.]";
 
         document.getElementById('result-tabs').style.display = 'block';
-        document.querySelector('.tab-button').click();
+        const pmpButton = document.querySelector('.tab-button[data-tab="pmp"]') || document.querySelector('.tab-button');
+        if (pmpButton) pmpButton.click();
     }
 
     function setupFormValidation() {
@@ -1364,7 +1289,7 @@ document.addEventListener('DOMContentLoaded', function () {
         });
     }
 
-    // Tabs
+    // ===================== TABS INIT =====================
     document.querySelectorAll('.tab-button').forEach(button => {
         button.addEventListener('click', function () {
             document
@@ -1381,5 +1306,6 @@ document.addEventListener('DOMContentLoaded', function () {
         });
     });
 
+    // ===================== START =====================
     init();
 });
