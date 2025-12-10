@@ -19,11 +19,14 @@
           <th class="characteristic-top-cell">Characteristic 1</th>
           <th class="characteristic-top-cell">Characteristic 2</th>
           <th class="characteristic-top-cell">Characteristic 3</th>
+          <th class="characteristic-top-cell">Characteristic 4</th>
+          <th class="characteristic-top-cell">Characteristic 5</th>
+          <th class="characteristic-top-cell">Characteristic 6</th>
 
           <th></th>
           <th></th>
 
-          <!-- Empty placeholders for competitor columns (keep column count = 13) -->
+          <!-- Empty placeholders for competitor columns (keep column count consistent) -->
           <th></th>
           <th></th>
           <th></th>
@@ -47,8 +50,8 @@
           </th>
           <th rowspan="2">Importance</th>
 
-          <!-- Technical Characteristics group -->
-          <th colspan="3">
+          <!-- Technical Characteristics group (NOW 6) -->
+          <th colspan="6">
             <div class="characteristic-controls-row">
               <button id="add-characteristic" class="icon-button" title="Add Characteristic">
                 <span class="icon">+</span>
@@ -60,7 +63,7 @@
             </div>
           </th>
 
-          <!-- Per-characteristic Importance (your blue column) -->
+          <!-- Per-characteristic Importance (blue column) -->
           <th rowspan="2" class="importance-header">
             <div class="importance-controls-row">
               <span>Importance of Service</span>
@@ -78,10 +81,13 @@
 
         <!-- Bottom header row: characteristic names + competitor headers -->
         <tr>
-          <!-- Editable Characteristic Names -->
-          <th><input type="text" class="characteristic-name" value="Characteristic 1"></th>
-          <th><input type="text" class="characteristic-name" value="Characteristic 2"></th>
-          <th><input type="text" class="characteristic-name" value="Characteristic 3"></th>
+          <!-- Editable Technical Characteristic Names -->
+          <th><input type="text" class="characteristic-name" value="Server response time"></th>
+          <th><input type="text" class="characteristic-name" value="Recommendation algorithm accuracy"></th>
+          <th><input type="text" class="characteristic-name" value="UI complexity / number of steps"></th>
+          <th><input type="text" class="characteristic-name" value="Payment encryption level"></th>
+          <th><input type="text" class="characteristic-name" value="Payment security"></th>
+          <th><input type="text" class="characteristic-name" value="Support automation (chatbot AI)"></th>
 
           <!-- Competitor Ratings sub-head -->
           <th class="competitor-column">Company 1</th>
@@ -97,53 +103,461 @@
 
       <!-- Table Body -->
       <tbody>
-        <!-- One default requirement row -->
+        <!-- Requirement 1: Fast booking process -->
         <tr>
-          <td><input type="text" class="requirement-name" value="Requirement 1"></td>
-          <td><input type="number" class="importance" value="5"></td>
+          <td><input type="text" class="requirement-name" value="Fast booking process"></td>
+          <td><input type="number" class="importance" value="9"></td>
 
-          <!-- Relationship Matrix (3 tech characteristics initially) -->
+          <!-- Server response time = 9 (Strong) -->
           <td>
             <select class="relationship-select">
               <option value="0">-</option>
-              <option value="9" data-icon="●">Strong (9)</option>
+              <option value="9" data-icon="●" selected>Strong (9)</option>
               <option value="3" data-icon="○">Medium (3)</option>
               <option value="1" data-icon="▲">Weak (1)</option>
             </select>
           </td>
+          <!-- Recommendation algorithm accuracy = 1 (Weak) -->
           <td>
             <select class="relationship-select">
               <option value="0">-</option>
               <option value="9" data-icon="●">Strong (9)</option>
+              <option value="3" data-icon="○">Medium (3)</option>
+              <option value="1" data-icon="▲" selected>Weak (1)</option>
+            </select>
+          </td>
+          <!-- UI complexity / steps = 9 (Strong) -->
+          <td>
+            <select class="relationship-select">
+              <option value="0">-</option>
+              <option value="9" data-icon="●" selected>Strong (9)</option>
               <option value="3" data-icon="○">Medium (3)</option>
               <option value="1" data-icon="▲">Weak (1)</option>
             </select>
           </td>
+          <!-- Payment encryption level = 1 (Weak) -->
           <td>
             <select class="relationship-select">
               <option value="0">-</option>
               <option value="9" data-icon="●">Strong (9)</option>
               <option value="3" data-icon="○">Medium (3)</option>
+              <option value="1" data-icon="▲" selected>Weak (1)</option>
+            </select>
+          </td>
+          <!-- Payment security = 3 (Medium) -->
+          <td>
+            <select class="relationship-select">
+              <option value="0">-</option>
+              <option value="9" data-icon="●">Strong (9)</option>
+              <option value="3" data-icon="○" selected>Medium (3)</option>
               <option value="1" data-icon="▲">Weak (1)</option>
+            </select>
+          </td>
+          <!-- Support automation = 1 (Weak) -->
+          <td>
+            <select class="relationship-select">
+              <option value="0">-</option>
+              <option value="9" data-icon="●">Strong (9)</option>
+              <option value="3" data-icon="○">Medium (3)</option>
+              <option value="1" data-icon="▲" selected>Weak (1)</option>
             </select>
           </td>
 
-          <!-- Per-row manual importance for that characteristic (your blue cell) -->
+          <!-- Manual importance per characteristic (blue) -->
           <td class="importance-column">
-            <input type="number" class="characteristic-importance" value="0">
+            <input type="number" class="characteristic-importance" value="0" min="0" max="100">
           </td>
 
-          <!-- Toggle spacer -->
           <td class="toggle-cell"></td>
 
-          <!-- Competitor Ratings -->
-          <td class="competitor-column"><input type="number" value="2" min="1" max="5"></td>
+          <!-- Competitor Ratings (example; editable) -->
+          <td class="competitor-column"><input type="number" value="5" min="1" max="5"></td> <!-- Company 1 (us) -->
           <td class="competitor-column"><input type="number" value="4" min="1" max="5"></td>
           <td class="competitor-column"><input type="number" value="3" min="1" max="5"></td>
-          <td class="competitor-column"><input type="number" value="5" min="1" max="5"></td>
-          <td class="competitor-column"><input type="number" value="1" min="1" max="5"></td>
+          <td class="competitor-column"><input type="number" value="4" min="1" max="5"></td>
+          <td class="competitor-column"><input type="number" value="2" min="1" max="5"></td>
           
           <!-- Highlight Competitive Advantage column -->
+          <td class="competitive-result-column">
+            <div class="competitive-result-text">No analysis</div>
+          </td>
+        </tr>
+
+        <!-- Requirement 2: Low service fees -->
+        <tr>
+          <td><input type="text" class="requirement-name" value="Low service fees"></td>
+          <td><input type="number" class="importance" value="8"></td>
+
+          <!-- Server response time = 1 (Weak) -->
+          <td>
+            <select class="relationship-select">
+              <option value="0">-</option>
+              <option value="9" data-icon="●">Strong (9)</option>
+              <option value="3" data-icon="○">Medium (3)</option>
+              <option value="1" data-icon="▲" selected>Weak (1)</option>
+            </select>
+          </td>
+          <!-- Rec accuracy = 3 (Medium) -->
+          <td>
+            <select class="relationship-select">
+              <option value="0">-</option>
+              <option value="9" data-icon="●">Strong (9)</option>
+              <option value="3" data-icon="○" selected>Medium (3)</option>
+              <option value="1" data-icon="▲">Weak (1)</option>
+            </select>
+          </td>
+          <!-- UI complexity = 1 (Weak) -->
+          <td>
+            <select class="relationship-select">
+              <option value="0">-</option>
+              <option value="9" data-icon="●">Strong (9)</option>
+              <option value="3" data-icon="○">Medium (3)</option>
+              <option value="1" data-icon="▲" selected>Weak (1)</option>
+            </select>
+          </td>
+          <!-- Encryption = 3 (Medium) -->
+          <td>
+            <select class="relationship-select">
+              <option value="0">-</option>
+              <option value="9" data-icon="●">Strong (9)</option>
+              <option value="3" data-icon="○" selected>Medium (3)</option>
+              <option value="1" data-icon="▲">Weak (1)</option>
+            </select>
+          </td>
+          <!-- Payment security = 3 (Medium) -->
+          <td>
+            <select class="relationship-select">
+              <option value="0">-</option>
+              <option value="9" data-icon="●">Strong (9)</option>
+              <option value="3" data-icon="○" selected>Medium (3)</option>
+              <option value="1" data-icon="▲">Weak (1)</option>
+            </select>
+          </td>
+          <!-- Support automation = 9 (Strong) -->
+          <td>
+            <select class="relationship-select">
+              <option value="0">-</option>
+              <option value="9" data-icon="●" selected>Strong (9)</option>
+              <option value="3" data-icon="○">Medium (3)</option>
+              <option value="1" data-icon="▲">Weak (1)</option>
+            </select>
+          </td>
+
+          <td class="importance-column">
+            <input type="number" class="characteristic-importance" value="0" min="0" max="100">
+          </td>
+          <td class="toggle-cell"></td>
+
+          <td class="competitor-column"><input type="number" value="4" min="1" max="5"></td>
+          <td class="competitor-column"><input type="number" value="4" min="1" max="5"></td>
+          <td class="competitor-column"><input type="number" value="3" min="1" max="5"></td>
+          <td class="competitor-column"><input type="number" value="3" min="1" max="5"></td>
+          <td class="competitor-column"><input type="number" value="2" min="1" max="5"></td>
+
+          <td class="competitive-result-column">
+            <div class="competitive-result-text">No analysis</div>
+          </td>
+        </tr>
+
+        <!-- Requirement 3: Easy navigation / usability -->
+        <tr>
+          <td><input type="text" class="requirement-name" value="Easy navigation / usability"></td>
+          <td><input type="number" class="importance" value="9"></td>
+
+          <!-- SRT = 3 (Medium) -->
+          <td>
+            <select class="relationship-select">
+              <option value="0">-</option>
+              <option value="9" data-icon="●">Strong (9)</option>
+              <option value="3" data-icon="○" selected>Medium (3)</option>
+              <option value="1" data-icon="▲">Weak (1)</option>
+            </select>
+          </td>
+          <!-- Rec accuracy = 3 (Medium) -->
+          <td>
+            <select class="relationship-select">
+              <option value="0">-</option>
+              <option value="9" data-icon="●">Strong (9)</option>
+              <option value="3" data-icon="○" selected>Medium (3)</option>
+              <option value="1" data-icon="▲">Weak (1)</option>
+            </select>
+          </td>
+          <!-- UI complexity = 9 (Strong) -->
+          <td>
+            <select class="relationship-select">
+              <option value="0">-</option>
+              <option value="9" data-icon="●" selected>Strong (9)</option>
+              <option value="3" data-icon="○">Medium (3)</option>
+              <option value="1" data-icon="▲">Weak (1)</option>
+            </select>
+          </td>
+          <!-- Encryption = 1 (Weak) -->
+          <td>
+            <select class="relationship-select">
+              <option value="0">-</option>
+              <option value="9" data-icon="●">Strong (9)</option>
+              <option value="3" data-icon="○">Medium (3)</option>
+              <option value="1" data-icon="▲" selected>Weak (1)</option>
+            </select>
+          </td>
+          <!-- Payment security = 1 (Weak) -->
+          <td>
+            <select class="relationship-select">
+              <option value="0">-</option>
+              <option value="9" data-icon="●">Strong (9)</option>
+              <option value="3" data-icon="○">Medium (3)</option>
+              <option value="1" data-icon="▲" selected>Weak (1)</option>
+            </select>
+          </td>
+          <!-- Support automation = 3 (Medium) -->
+          <td>
+            <select class="relationship-select">
+              <option value="0">-</option>
+              <option value="9" data-icon="●">Strong (9)</option>
+              <option value="3" data-icon="○" selected>Medium (3)</option>
+              <option value="1" data-icon="▲">Weak (1)</option>
+            </select>
+          </td>
+
+          <td class="importance-column">
+            <input type="number" class="characteristic-importance" value="0" min="0" max="100">
+          </td>
+          <td class="toggle-cell"></td>
+
+          <td class="competitor-column"><input type="number" value="4" min="1" max="5"></td>
+          <td class="competitor-column"><input type="number" value="3" min="1" max="5"></td>
+          <td class="competitor-column"><input type="number" value="3" min="1" max="5"></td>
+          <td class="competitor-column"><input type="number" value="4" min="1" max="5"></td>
+          <td class="competitor-column"><input type="number" value="2" min="1" max="5"></td>
+
+          <td class="competitive-result-column">
+            <div class="competitive-result-text">No analysis</div>
+          </td>
+        </tr>
+
+        <!-- Requirement 4: Accurate travel recommendations -->
+        <tr>
+          <td><input type="text" class="requirement-name" value="Accurate travel recommendations"></td>
+          <td><input type="number" class="importance" value="8"></td>
+
+          <!-- SRT = 3 -->
+          <td>
+            <select class="relationship-select">
+              <option value="0">-</option>
+              <option value="9" data-icon="●">Strong (9)</option>
+              <option value="3" data-icon="○" selected>Medium (3)</option>
+              <option value="1" data-icon="▲">Weak (1)</option>
+            </select>
+          </td>
+          <!-- Rec accuracy = 9 -->
+          <td>
+            <select class="relationship-select">
+              <option value="0">-</option>
+              <option value="9" data-icon="●" selected>Strong (9)</option>
+              <option value="3" data-icon="○">Medium (3)</option>
+              <option value="1" data-icon="▲">Weak (1)</option>
+            </select>
+          </td>
+          <!-- UI complexity = 3 -->
+          <td>
+            <select class="relationship-select">
+              <option value="0">-</option>
+              <option value="9" data-icon="●">Strong (9)</option>
+              <option value="3" data-icon="○" selected>Medium (3)</option>
+              <option value="1" data-icon="▲">Weak (1)</option>
+            </select>
+          </td>
+          <!-- Encryption = 1 -->
+          <td>
+            <select class="relationship-select">
+              <option value="0">-</option>
+              <option value="9" data-icon="●">Strong (9)</option>
+              <option value="3" data-icon="○">Medium (3)</option>
+              <option value="1" data-icon="▲" selected>Weak (1)</option>
+            </select>
+          </td>
+          <!-- Payment security = 1 -->
+          <td>
+            <select class="relationship-select">
+              <option value="0">-</option>
+              <option value="9" data-icon="●">Strong (9)</option>
+              <option value="3" data-icon="○">Medium (3)</option>
+              <option value="1" data-icon="▲" selected>Weak (1)</option>
+            </select>
+          </td>
+          <!-- Support automation = 3 -->
+          <td>
+            <select class="relationship-select">
+              <option value="0">-</option>
+              <option value="9" data-icon="●">Strong (9)</option>
+              <option value="3" data-icon="○" selected>Medium (3)</option>
+              <option value="1" data-icon="▲">Weak (1)</option>
+            </select>
+          </td>
+
+          <td class="importance-column">
+            <input type="number" class="characteristic-importance" value="0" min="0" max="100">
+          </td>
+          <td class="toggle-cell"></td>
+
+          <td class="competitor-column"><input type="number" value="4" min="1" max="5"></td>
+          <td class="competitor-column"><input type="number" value="4" min="1" max="5"></td>
+          <td class="competitor-column"><input type="number" value="3" min="1" max="5"></td>
+          <td class="competitor-column"><input type="number" value="4" min="1" max="5"></td>
+          <td class="competitor-column"><input type="number" value="2" min="1" max="5"></td>
+
+          <td class="competitive-result-column">
+            <div class="competitive-result-text">No analysis</div>
+          </td>
+        </tr>
+
+        <!-- Requirement 5: Secure payments -->
+        <tr>
+          <td><input type="text" class="requirement-name" value="Secure payments"></td>
+          <td><input type="number" class="importance" value="10"></td>
+
+          <!-- SRT = 3 -->
+          <td>
+            <select class="relationship-select">
+              <option value="0">-</option>
+              <option value="9" data-icon="●">Strong (9)</option>
+              <option value="3" data-icon="○" selected>Medium (3)</option>
+              <option value="1" data-icon="▲">Weak (1)</option>
+            </select>
+          </td>
+          <!-- Rec accuracy = 1 -->
+          <td>
+            <select class="relationship-select">
+              <option value="0">-</option>
+              <option value="9" data-icon="●">Strong (9)</option>
+              <option value="3" data-icon="○">Medium (3)</option>
+              <option value="1" data-icon="▲" selected>Weak (1)</option>
+            </select>
+          </td>
+          <!-- UI complexity = 3 -->
+          <td>
+            <select class="relationship-select">
+              <option value="0">-</option>
+              <option value="9" data-icon="●">Strong (9)</option>
+              <option value="3" data-icon="○" selected>Medium (3)</option>
+              <option value="1" data-icon="▲">Weak (1)</option>
+            </select>
+          </td>
+          <!-- Encryption = 9 -->
+          <td>
+            <select class="relationship-select">
+              <option value="0">-</option>
+              <option value="9" data-icon="●" selected>Strong (9)</option>
+              <option value="3" data-icon="○">Medium (3)</option>
+              <option value="1" data-icon="▲">Weak (1)</option>
+            </select>
+          </td>
+          <!-- Payment security = 9 -->
+          <td>
+            <select class="relationship-select">
+              <option value="0">-</option>
+              <option value="9" data-icon="●" selected>Strong (9)</option>
+              <option value="3" data-icon="○">Medium (3)</option>
+              <option value="1" data-icon="▲">Weak (1)</option>
+            </select>
+          </td>
+          <!-- Support automation = 3 -->
+          <td>
+            <select class="relationship-select">
+              <option value="0">-</option>
+              <option value="9" data-icon="●">Strong (9)</option>
+              <option value="3" data-icon="○" selected>Medium (3)</option>
+              <option value="1" data-icon="▲">Weak (1)</option>
+            </select>
+          </td>
+
+          <td class="importance-column">
+            <input type="number" class="characteristic-importance" value="0" min="0" max="100">
+          </td>
+          <td class="toggle-cell"></td>
+
+          <td class="competitor-column"><input type="number" value="4" min="1" max="5"></td>
+          <td class="competitor-column"><input type="number" value="4" min="1" max="5"></td>
+          <td class="competitor-column"><input type="number" value="4" min="1" max="5"></td>
+          <td class="competitor-column"><input type="number" value="5" min="1" max="5"></td>
+          <td class="competitor-column"><input type="number" value="3" min="1" max="5"></td>
+
+          <td class="competitive-result-column">
+            <div class="competitive-result-text">No analysis</div>
+          </td>
+        </tr>
+
+        <!-- Requirement 6: 24/7 customer support -->
+        <tr>
+          <td><input type="text" class="requirement-name" value="24/7 customer support"></td>
+          <td><input type="number" class="importance" value="7"></td>
+
+          <!-- SRT = 3 -->
+          <td>
+            <select class="relationship-select">
+              <option value="0">-</option>
+              <option value="9" data-icon="●">Strong (9)</option>
+              <option value="3" data-icon="○" selected>Medium (3)</option>
+              <option value="1" data-icon="▲">Weak (1)</option>
+            </select>
+          </td>
+          <!-- Rec accuracy = 1 -->
+          <td>
+            <select class="relationship-select">
+              <option value="0">-</option>
+              <option value="9" data-icon="●">Strong (9)</option>
+              <option value="3" data-icon="○">Medium (3)</option>
+              <option value="1" data-icon="▲" selected>Weak (1)</option>
+            </select>
+          </td>
+          <!-- UI complexity = 1 -->
+          <td>
+            <select class="relationship-select">
+              <option value="0">-</option>
+              <option value="9" data-icon="●">Strong (9)</option>
+              <option value="3" data-icon="○">Medium (3)</option>
+              <option value="1" data-icon="▲" selected>Weak (1)</option>
+            </select>
+          </td>
+          <!-- Encryption = 1 -->
+          <td>
+            <select class="relationship-select">
+              <option value="0">-</option>
+              <option value="9" data-icon="●">Strong (9)</option>
+              <option value="3" data-icon="○">Medium (3)</option>
+              <option value="1" data-icon="▲" selected>Weak (1)</option>
+            </select>
+          </td>
+          <!-- Payment security = 3 -->
+          <td>
+            <select class="relationship-select">
+              <option value="0">-</option>
+              <option value="9" data-icon="●">Strong (9)</option>
+              <option value="3" data-icon="○" selected>Medium (3)</option>
+              <option value="1" data-icon="▲">Weak (1)</option>
+            </select>
+          </td>
+          <!-- Support automation = 9 -->
+          <td>
+            <select class="relationship-select">
+              <option value="0">-</option>
+              <option value="9" data-icon="●" selected>Strong (9)</option>
+              <option value="3" data-icon="○">Medium (3)</option>
+              <option value="1" data-icon="▲">Weak (1)</option>
+            </select>
+          </td>
+
+          <td class="importance-column">
+            <input type="number" class="characteristic-importance" value="0" min="0" max="100">
+          </td>
+          <td class="toggle-cell"></td>
+
+          <td class="competitor-column"><input type="number" value="4" min="1" max="5"></td>
+          <td class="competitor-column"><input type="number" value="3" min="1" max="5"></td>
+          <td class="competitor-column"><input type="number" value="3" min="1" max="5"></td>
+          <td class="competitor-column"><input type="number" value="4" min="1" max="5"></td>
+          <td class="competitor-column"><input type="number" value="3" min="1" max="5"></td>
+
           <td class="competitive-result-column">
             <div class="competitive-result-text">No analysis</div>
           </td>
@@ -157,9 +571,18 @@
               <div class="difficulty-subtext">(0 = Easy to accomplish | 10 = Extremely difficult)</div>
             </div>
           </td>
-          <td><input type="number" class="difficulty" value="1" min="0" max="10"></td>
-          <td><input type="number" class="difficulty" value="1" min="0" max="10"></td>
-          <td><input type="number" class="difficulty" value="1" min="0" max="10"></td>
+          <!-- SRT -->
+          <td><input type="number" class="difficulty" value="7" min="0" max="10"></td>
+          <!-- Rec accuracy -->
+          <td><input type="number" class="difficulty" value="8" min="0" max="10"></td>
+          <!-- UI complexity -->
+          <td><input type="number" class="difficulty" value="5" min="0" max="10"></td>
+          <!-- Encryption -->
+          <td><input type="number" class="difficulty" value="6" min="0" max="10"></td>
+          <!-- Payment security -->
+          <td><input type="number" class="difficulty" value="7" min="0" max="10"></td>
+          <!-- Support automation -->
+          <td><input type="number" class="difficulty" value="8" min="0" max="10"></td>
 
           <td class="importance-column"></td>
           <td class="toggle-cell"></td>
@@ -178,9 +601,18 @@
         <!-- How Muches -->
         <tr id="how-muches-row">
           <td colspan="2">How Muches</td>
-          <td><input type="text" class="how-much" value=""></td>
-          <td><input type="text" class="how-much" value=""></td>
-          <td><input type="text" class="how-much" value=""></td>
+          <!-- SRT -->
+          <td><input type="text" class="how-much" value="<= 1.0s per key action"></td>
+          <!-- Rec accuracy -->
+          <td><input type="text" class="how-much" value="Top-3 recs >= 90% match"></td>
+          <!-- UI complexity -->
+          <td><input type="text" class="how-much" value="<= 3 steps to booking"></td>
+          <!-- Encryption -->
+          <td><input type="text" class="how-much" value="TLS 1.3, AES-256, HSTS"></td>
+          <!-- Payment security -->
+          <td><input type="text" class="how-much" value="PCI DSS L1, 3DS 2.0"></td>
+          <!-- Support automation -->
+          <td><input type="text" class="how-much" value=">= 80% tickets auto-resolved"></td>
 
           <td class="importance-column"></td>
           <td class="toggle-cell"></td>
@@ -198,6 +630,9 @@
         <!-- Absolute Importance (calc) -->
         <tr id="absolute-importance-row">
           <td colspan="2">Absolute Importance</td>
+          <td><input type="number" class="absolute-importance" value="0" readonly></td>
+          <td><input type="number" class="absolute-importance" value="0" readonly></td>
+          <td><input type="number" class="absolute-importance" value="0" readonly></td>
           <td><input type="number" class="absolute-importance" value="0" readonly></td>
           <td><input type="number" class="absolute-importance" value="0" readonly></td>
           <td><input type="number" class="absolute-importance" value="0" readonly></td>
@@ -221,6 +656,9 @@
           <td><input type="number" class="relative-importance" value="0" readonly></td>
           <td><input type="number" class="relative-importance" value="0" readonly></td>
           <td><input type="number" class="relative-importance" value="0" readonly></td>
+          <td><input type="number" class="relative-importance" value="0" readonly></td>
+          <td><input type="number" class="relative-importance" value="0" readonly></td>
+          <td><input type="number" class="relative-importance" value="0" readonly></td>
 
           <td class="importance-column"></td>
           <td class="toggle-cell"></td>
@@ -239,7 +677,7 @@
         <tr id="technical-competitor-comparison-row">
           <td colspan="2"><strong>Technical Competitor Comparison</strong></td>
 
-          <!-- one cell per technical characteristic (initially 3) -->
+          <!-- one cell per technical characteristic (initially 3 – JS will expand to 6) -->
           <td class="tech-competitor-cell">
             <div class="tech-competitor-group">
               <label>Company A</label>
