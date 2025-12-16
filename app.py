@@ -10,7 +10,7 @@ app = Flask(__name__)
 # === OpenRouter configuration ===
 OPENROUTER_API_KEY = os.getenv("OPENROUTER_API_KEY")
 OPENROUTER_API_URL = "https://openrouter.ai/api/v1/chat/completions"
-DEFAULT_MODEL = "tngtech/deepseek-r1t-chimera:free"  # or any other valid OpenRouter model
+DEFAULT_MODEL = "openai/gpt-4o-mini"  # or any other valid OpenRouter model
 
 
 @app.route("/")
