@@ -1239,7 +1239,7 @@ STRICT RULES:
                 method: "POST",
                 headers: { "Content-Type": "application/json" },
                 body: JSON.stringify({
-                    model: "tngtech/deepseek-r1t-chimera:free",
+                    model: "openai/gpt-4o-mini",
                     messages: [{ role: "user", content: prompt }],
                     temperature: 0.7,
                     max_tokens: 2000
